@@ -24,6 +24,7 @@ export default function ResumePage() {
         <div className="no-print mb-8 flex flex-wrap items-center justify-between gap-4">
           <Link
             href="/"
+            prefetch={false}
             className="inline-flex min-h-[44px] items-center gap-2 text-sm font-medium text-[#A1A1AA] transition-colors hover:text-[#F5D90A]"
           >
             <ArrowLeft className="h-4 w-4" aria-hidden="true" />
@@ -42,9 +43,29 @@ export default function ResumePage() {
             </p>
             <div className="mt-4 flex flex-wrap gap-x-5 gap-y-1.5 text-sm text-[#A1A1AA] print:text-neutral-700">
               <span>{siteConfig.location}</span>
-              <span>{siteConfig.email}</span>
+              <a
+                href={`mailto:${siteConfig.email}`}
+                className="hover:text-[#F5D90A] print:text-neutral-800 print:underline"
+              >
+                {siteConfig.email}
+              </a>
               <span>{siteConfig.phone}</span>
-              <span>{siteConfig.githubUrl}</span>
+              <a
+                href={siteConfig.githubUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-[#F5D90A] print:text-neutral-800 print:underline"
+              >
+                {siteConfig.githubUrl}
+              </a>
+              <a
+                href={siteConfig.linkedinUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-[#F5D90A] print:text-neutral-800 print:underline"
+              >
+                {siteConfig.linkedinUrl}
+              </a>
             </div>
           </header>
 
@@ -87,6 +108,34 @@ export default function ResumePage() {
                   <p className="mt-1 text-sm text-[#A1A1AA] print:text-neutral-700">
                     {project.oneLineDescription}
                   </p>
+                  <div className="mt-1.5 flex flex-wrap gap-x-5 gap-y-1 font-mono-code text-xs text-[#A1A1AA] print:text-neutral-700">
+                    {project.github && (
+                      <span>
+                        GitHub:{" "}
+                        <a
+                          href={project.github}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[#F5D90A] underline hover:text-[#FFE524] print:text-black"
+                        >
+                          {project.github}
+                        </a>
+                      </span>
+                    )}
+                    {project.live && (
+                      <span>
+                        Live Demo:{" "}
+                        <a
+                          href={project.live}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[#F5D90A] underline hover:text-[#FFE524] print:text-black"
+                        >
+                          {project.live}
+                        </a>
+                      </span>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>

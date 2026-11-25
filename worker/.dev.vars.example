@@ -1,4 +1,7 @@
 # Copy to worker/.dev.vars for local `wrangler dev` testing (never commit .dev.vars)
 ADMIN_TOKEN=replace-with-a-long-random-secret
+SESSION_SECRET=replace-with-a-separate-hmac-signing-secret
 TELEGRAM_BOT_TOKEN=replace-with-telegram-bot-token
 TELEGRAM_CHAT_ID=replace-with-telegram-chat-id
+# Optional: set to enable server-side Cloudflare Turnstile verification
+# TURNSTILE_SECRET_KEY=replace-with-turnstile-secret

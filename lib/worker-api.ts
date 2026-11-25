@@ -64,6 +64,7 @@ export async function verifyAdminToken(
   const base = getBaseUrl(baseUrl);
   const res = await fetch(`${base}/api/admin/auth`, {
     method: "POST",
+    credentials: "include",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ token }),
   });
@@ -72,20 +73,27 @@ export async function verifyAdminToken(
     return false;
   }
   if (!res.ok) {
-    throw new Error(await parseError(res, "Authentication check failed"));
+    throw new Error(await parseError(res, "Authentication failed"));
   }
   const json = (await res.json()) as { ok?: boolean };
   return Boolean(json.ok);
 }
 
+export async function logoutAdmin(baseUrl?: string): Promise<void> {
+  const base = getBaseUrl(baseUrl);
+  await fetch(`${base}/api/admin/logout`, {
+    method: "POST",
+    credentials: "include",
+  });
+}
+
 export async function fetchAdminMessages(
-  token: string,
   baseUrl?: string
 ): Promise<ContactMessage[]> {
   const base = getBaseUrl(baseUrl);
   const res = await fetch(`${base}/api/admin/messages`, {
     method: "GET",
-    headers: { Authorization: `Bearer ${token}` },
+    credentials: "include",
   });
 
   if (res.status === 401) {
@@ -103,7 +111,6 @@ export async function fetchAdminMessages(
 }
 
 export async function fetchAdminMessageDetail(
-  token: string,
   messageId: string,
   baseUrl?: string
 ): Promise<ContactMessage> {
@@ -112,7 +119,7 @@ export async function fetchAdminMessageDetail(
     `${base}/api/admin/messages/${encodeURIComponent(messageId)}`,
     {
       method: "GET",
-      headers: { Authorization: `Bearer ${token}` },
+      credentials: "include",
     }
   );
 
@@ -131,7 +138,6 @@ export async function fetchAdminMessageDetail(
 }
 
 export async function createAdminReply(
-  token: string,
   messageId: string,
   body: string,
   clientReplyId: string,
@@ -142,9 +148,9 @@ export async function createAdminReply(
     `${base}/api/admin/messages/${encodeURIComponent(messageId)}/replies`,
     {
       method: "POST",
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({ body, clientReplyId }),
     }
@@ -168,7 +174,6 @@ export async function createAdminReply(
 }
 
 export async function updateMessageStatus(
-  token: string,
   messageId: string,
   status: MessageStatus,
   baseUrl?: string
@@ -178,9 +183,9 @@ export async function updateMessageStatus(
     `${base}/api/admin/messages/${encodeURIComponent(messageId)}/status`,
     {
       method: "PATCH",
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({ status }),
     }
@@ -205,7 +210,6 @@ export async function updateMessageStatus(
 }
 
 export async function deleteAdminMessage(
-  token: string,
   messageId: string,
   baseUrl?: string
 ): Promise<void> {
@@ -214,7 +218,7 @@ export async function deleteAdminMessage(
     `${base}/api/admin/messages/${encodeURIComponent(messageId)}`,
     {
       method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` },
+      credentials: "include",
     }
   );
 

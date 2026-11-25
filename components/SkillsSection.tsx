@@ -1,5 +1,4 @@
 import { Reveal } from "@/components/Reveal";
-import { StarMotif } from "@/components/StarMotif";
 import { skillGroups } from "@/lib/site-config";
 
 export function SkillsSection() {
@@ -13,8 +12,7 @@ export function SkillsSection() {
         <Reveal>
           <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
             <div>
-              <div className="flex items-center gap-2.5 text-meta font-medium text-[#F5D90A]">
-                <StarMotif size={16} />
+              <div className="text-meta font-medium text-[#F5D90A]">
                 <span>Technical Stack</span>
               </div>
               <h2 className="text-section mt-4 text-[#F5F5F0]">

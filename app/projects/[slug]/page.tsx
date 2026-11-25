@@ -7,7 +7,6 @@ import { GitHubIcon } from "@/components/BrandIcons";
 import { Footer } from "@/components/Footer";
 import { Navbar } from "@/components/Navbar";
 import { ProjectVisual } from "@/components/ProjectVisual";
-import { StarMotif } from "@/components/StarMotif";
 import { getProjectBySlug, projects } from "@/lib/projects";
 import { siteConfig } from "@/lib/site-config";
 
@@ -67,7 +66,8 @@ export default async function CaseStudyPage({ params }: CaseStudyPageProps) {
         <section className="border-b border-[#242424] pt-10 pb-14 md:pt-16 md:pb-20">
           <div className="portfolio-container">
             <Link
-              href="/#projects"
+              href="/projects/"
+              prefetch={false}
               className="inline-flex min-h-[44px] items-center gap-2 text-sm font-medium text-[#A1A1AA] transition-colors hover:text-[#F5D90A]"
             >
               <ArrowLeft className="h-4 w-4" aria-hidden="true" />
@@ -139,8 +139,7 @@ export default async function CaseStudyPage({ params }: CaseStudyPageProps) {
           {/* 1. Overview & Why I Chose This Project */}
           <section className="grid grid-cols-1 gap-8 lg:grid-cols-12">
             <div className="rounded-[16px] border border-[#242424] bg-[#141414] p-6 sm:p-8 lg:col-span-7">
-              <div className="flex items-center gap-2 text-meta font-medium text-[#F5D90A]">
-                <StarMotif size={14} />
+              <div className="text-meta font-medium text-[#F5D90A]">
                 <span>01 · Project Overview</span>
               </div>
               <h2 className="text-subhead mt-3 text-[#F5F5F0]">
@@ -425,6 +424,7 @@ export default async function CaseStudyPage({ params }: CaseStudyPageProps) {
 
             <Link
               href={`/projects/${nextProject.slug}/`}
+              prefetch={false}
               className="inline-flex min-h-[48px] shrink-0 items-center gap-2 rounded-[8px] bg-[#F5D90A] px-5 py-3 font-display text-sm font-bold text-[#0B0B0B] transition-colors hover:bg-[#FFE524]"
             >
               <span>Read Next</span>

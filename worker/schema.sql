@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS contact_messages (
   name TEXT NOT NULL,
   email TEXT NOT NULL,
   message TEXT NOT NULL,
+  submission_hash TEXT,
   status TEXT NOT NULL DEFAULT 'New' CHECK (status IN ('New', 'Replied', 'Closed')),
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL
@@ -13,6 +14,9 @@ CREATE TABLE IF NOT EXISTS contact_messages (
 
 CREATE INDEX IF NOT EXISTS idx_contact_messages_status_created
   ON contact_messages (status, created_at DESC);
+
+CREATE INDEX IF NOT EXISTS idx_contact_messages_submission_hash_created
+  ON contact_messages (submission_hash, created_at DESC);
 
 CREATE TABLE IF NOT EXISTS admin_replies (
   id TEXT PRIMARY KEY,

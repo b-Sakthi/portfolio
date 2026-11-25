@@ -4,7 +4,6 @@ import { Check, Copy, Loader2, Mail, MapPin, Phone, Send } from "lucide-react";
 import { useId, useRef, useState, type FormEvent } from "react";
 import { GitHubIcon, LinkedInIcon } from "@/components/BrandIcons";
 import { Reveal } from "@/components/Reveal";
-import { StarMotif } from "@/components/StarMotif";
 import { siteConfig } from "@/lib/site-config";
 import { submitContactForm } from "@/lib/worker-api";
 
@@ -141,8 +140,7 @@ export function ContactSection() {
     <section id="contact" tabIndex={-1} className="section-spacing">
       <div className="portfolio-container">
         <Reveal>
-          <div className="flex items-center gap-2.5 text-meta font-medium text-[#F5D90A]">
-            <StarMotif size={16} />
+          <div className="text-meta font-medium text-[#F5D90A]">
             <span>Get In Touch</span>
           </div>
           <h2 className="text-section mt-4 max-w-4xl text-[#F5F5F0]">

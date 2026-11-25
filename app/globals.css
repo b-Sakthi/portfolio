@@ -27,7 +27,7 @@
   --space-30: 120px;
 
   /* Fluid Typography Scale */
-  --text-hero: clamp(2.625rem, 1.5rem + 4.5vw, 5.75rem);
+  --text-hero: clamp(2.25rem, 1.35rem + 4.2vw, 5.25rem);
   --text-section: clamp(2rem, 1.4rem + 2.2vw, 3.75rem);
   --text-project: clamp(1.4375rem, 1.2rem + 0.9vw, 2.25rem);
   --text-subhead: clamp(1.1875rem, 1.05rem + 0.4vw, 1.5rem);
@@ -199,6 +199,32 @@ nav.primary-nav {
 .editorial-grid-bg {
   background-image: radial-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px);
   background-size: 24px 24px;
+}
+
+/* Subtle terminal cursor blink (respects prefers-reduced-motion) */
+@keyframes terminal-blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+.terminal-cursor {
+  display: inline-block;
+  width: 7px;
+  height: 13px;
+  vertical-align: middle;
+  background-color: var(--accent-yellow);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .terminal-cursor {
+    animation: terminal-blink 1.1s steps(1, end) infinite;
+  }
 }
 
 /* Print styles for /resume */

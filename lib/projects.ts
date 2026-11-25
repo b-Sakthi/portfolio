@@ -25,6 +25,7 @@ export interface ProjectCaseStudy {
   category: string;
   role?: string;
   oneLineDescription: string;
+  contributionSummary: string;
   technologies: string[];
   github?: string;
   live?: string;
@@ -60,7 +61,9 @@ export const projects: ProjectCaseStudy[] = [
     tagline: "Browser-Native Linux & DevOps Training",
     category: "Systems · WebAssembly · EdTech",
     oneLineDescription:
-      "A full x86 Linux VM running entirely in the browser via WebAssembly (v86), with an AI tutor, live production-incident simulations (Nginx, Docker, permissions), adaptive mastery tracking, and IndexedDB persistence.",
+      "Browser-native Linux and DevOps training platform featuring an interactive Linux terminal, incident simulation, learning missions, command assistance, cognitive mastery tracking, and XP progress.",
+    contributionSummary:
+      "Full-stack development and platform integration (Next.js, TypeScript, v86, IndexedDB, Supabase Auth/RLS, Redis, Groq AI).",
     technologies: [
       "Next.js",
       "TypeScript",
@@ -71,15 +74,15 @@ export const projects: ProjectCaseStudy[] = [
       "Redis",
       "Groq AI",
     ],
-    live: "https://linlearn.vercel.app/",
+    live: "https://linlearn.vercel.app/dashboard",
     github: "https://github.com/b-Sakthi/linlearn",
     githubNote: "Official GitHub repository for LinLearn.",
     visualTheme: {
-      accentLabel: "v86 WASM + AI Tutor",
-      metricBadges: ["WebAssembly", "x86 Linux VM", "IndexedDB"],
+      accentLabel: "Simulation Mode + BKT Mastery",
+      metricBadges: ["Interactive Terminal", "Missions & XP", "BKT Mastery"],
     },
     overview:
-      "LinLearn is a browser-native Linux and DevOps training platform featuring a full x86 Linux VM running entirely in the browser via WebAssembly (v86). It pairs live production-incident simulations (Nginx, Docker, permissions) with an AI tutor, adaptive mastery tracking, IndexedDB persistence, Supabase authentication/RLS, Redis rate limiting, and Groq AI.",
+      "LinLearn is a browser-native Linux and DevOps training platform built around an interactive Linux terminal, Simulation Mode (distinct from a fully operational local VM while provisioning), incident simulations, learning missions, command assistance, cognitive mastery tracking (BKT model), and XP/streak learning progress—backed by Next.js, TypeScript, v86 WebAssembly, IndexedDB, Supabase Auth/RLS, Redis rate limiting, and Groq AI.",
     whyIChoseThis:
       "I built LinLearn to combine practical systems education with browser-native WebAssembly virtualization and responsible AI engineering—giving learners real Linux environments without cloud VM spin-up latency while enforcing strict data isolation and usage quotas.",
     realWorldProblem:
@@ -152,13 +155,13 @@ export const projects: ProjectCaseStudy[] = [
       "Configured Supabase authentication, Row-Level Security, and Redis-backed rate limiting and AI usage quotas.",
     ],
     importantFeatures: [
-      "Browser-native x86 Linux VM (v86 WebAssembly)",
-      "Live production-incident simulations (Nginx, Docker, permissions)",
-      "AI tutor, mock interviews & terminal error analysis",
-      "Adaptive mastery tracking & IndexedDB persistence",
-      "Linux command generation & cheat-sheet creation",
-      "Supabase Auth & Row-Level Security (RLS)",
-      "Redis rate limiting & AI usage quotas",
+      "Interactive Linux terminal with Simulation Mode (distinct from a fully operational VM)",
+      "Incident simulation (Nginx, Docker, permissions)",
+      "Learning missions & sandbox challenges",
+      "Command assistance, cheat sheets & AI tutor",
+      "Cognitive mastery tracking (BKT model)",
+      "XP, streaks & learning progress",
+      "Supabase Auth/RLS & Redis rate limiting",
     ],
     developmentWorkflow: [
       "Type-safe full-stack development in Next.js and TypeScript.",
@@ -176,7 +179,7 @@ export const projects: ProjectCaseStudy[] = [
       "Enforced Supabase Row-Level Security policies tied to authenticated user sessions.",
     ],
     screenshotNote:
-      "Terminal VM preview shown above. Live deployment is available at linlearn.vercel.app.",
+      "Dashboard preview shows LinLearn in Simulation Mode during VM environment provisioning (not a completed terminal session). Live deployment is available at linlearn.vercel.app/dashboard.",
     whatILearned: [
       "Integrating WebAssembly (v86) virtualization and IndexedDB persistence in a Next.js application.",
       "How database-enforced Row-Level Security simplifies multi-tenant authorization.",
@@ -194,7 +197,9 @@ export const projects: ProjectCaseStudy[] = [
     category: "Computer Vision · Full Stack · MLOps",
     role: "Frontend & DevOps Contributor",
     oneLineDescription:
-      "Retail intelligence monorepo combining YOLO11n detection, ByteTrack customer tracking, hybrid RAG, and async PostgreSQL persistence.",
+      "Retail video analytics monorepo turning store camera feeds into footfall, dwell-time, and shelf-stock insights via YOLO11n, ByteTrack, hybrid RAG, and async PostgreSQL.",
+    contributionSummary:
+      "Frontend & DevOps Contributor — Next.js/TypeScript UI, Docker Compose, GitHub Actions CI/CD, and backend integration (YOLO model handled separately).",
     technologies: [
       "Next.js",
       "TypeScript",
@@ -352,7 +357,9 @@ export const projects: ProjectCaseStudy[] = [
     tagline: "Intelligent Cinema Ticket Booking System",
     category: "Full Stack · Concurrency · Algorithms",
     oneLineDescription:
-      "Movie ticket booking platform featuring the Vision IQ seat recommendation engine, dynamic pricing, and atomic MongoDB seat reservations.",
+      "Cinema ticket booking platform solving seat-stranding and double-booking race conditions with Vision IQ geometric recommendations, dynamic pricing, and atomic MongoDB reservations.",
+    contributionSummary:
+      "Full-stack implementation: Node.js/MongoDB backend, Vision IQ seat-scoring & anti-stranding engine, atomic reservations, JWT RBAC, and revenue analytics.",
     technologies: ["Node.js", "MongoDB", "JWT", "HTML", "CSS", "JavaScript"],
     live: "https://cintic.vercel.app/",
     github: "https://github.com/b-Sakthi/sead",
@@ -486,7 +493,9 @@ export const projects: ProjectCaseStudy[] = [
     tagline: "IoT Full-Stack Dashboard",
     category: "Cloud · IoT · Real-Time Systems",
     oneLineDescription:
-      "Containerized Python REST API on GCP Cloud Run with Supabase real-time database sync, CI/CD, and a live JavaScript sensor dashboard.",
+      "IoT water monitoring platform replacing manual polling with a containerized Python REST API on GCP Cloud Run, Supabase real-time sync, and a live JavaScript dashboard.",
+    contributionSummary:
+      "Full-stack cloud & IoT pipeline: Dockerized Python REST API on GCP Cloud Run, Supabase sync, JavaScript dashboard, and automated CI/CD.",
     technologies: ["Python", "GCP Cloud Run", "Supabase", "Docker", "JavaScript"],
     github: "https://github.com/b-Sakthi/haloo",
     githubNote: "Official GitHub repository for Smart Water Hydro System.",

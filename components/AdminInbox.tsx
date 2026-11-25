@@ -38,11 +38,10 @@ import {
   createAdminReply,
   deleteAdminMessage,
   fetchAdminMessages,
+  logoutAdmin,
   updateMessageStatus,
   verifyAdminToken,
 } from "@/lib/worker-api";
-
-const SESSION_KEY = "sakthi_admin_token";
 
 const initialInboxState: InboxState = {
   messages: [],
@@ -64,7 +63,6 @@ export function AdminInbox() {
   const statusSelectId = useId();
   const deleteDialogTitleId = useId();
 
-  const [token, setToken] = useState<string>("");
   const [tokenInput, setTokenInput] = useState<string>("");
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [authLoading, setAuthLoading] = useState<boolean>(false);
@@ -92,19 +90,17 @@ export function AdminInbox() {
   const [pendingDeleteTarget, setPendingDeleteTarget] =
     useState<ContactMessage | null>(null);
 
-  const loadMessages = useCallback(async (activeToken: string) => {
+  const loadMessages = useCallback(async () => {
     setLoadingInbox(true);
     setBanner(null);
     try {
-      const messages = await fetchAdminMessages(activeToken);
+      const messages = await fetchAdminMessages();
       dispatch({ type: "SET_MESSAGES", messages });
     } catch (err) {
       const msg =
         err instanceof Error ? err.message : "Failed to load messages.";
       if (msg === "Unauthorized") {
-        sessionStorage.removeItem(SESSION_KEY);
         setIsAuthenticated(false);
-        setToken("");
         setAuthError("Session expired or unauthorized. Please sign in again.");
       } else {
         setBanner({ type: "error", text: msg });
@@ -114,32 +110,18 @@ export function AdminInbox() {
     }
   }, []);
 
-  // Restore session token if present
+  // Check existing HttpOnly cookie session on mount if Worker URL is configured
   useEffect(() => {
-    const saved = sessionStorage.getItem(SESSION_KEY);
-    if (!saved) return;
+    if (!siteConfig.workerUrl) return;
     let active = true;
     void (async () => {
       try {
-        const messages = await fetchAdminMessages(saved);
+        const messages = await fetchAdminMessages();
         if (!active) return;
-        setToken(saved);
         setIsAuthenticated(true);
         dispatch({ type: "SET_MESSAGES", messages });
-      } catch (err) {
-        if (!active) return;
-        const msg =
-          err instanceof Error ? err.message : "Failed to load messages.";
-        if (msg === "Unauthorized") {
-          sessionStorage.removeItem(SESSION_KEY);
-          setIsAuthenticated(false);
-          setToken("");
-          setAuthError("Session expired or unauthorized. Please sign in again.");
-        } else {
-          setToken(saved);
-          setIsAuthenticated(true);
-          setBanner({ type: "error", text: msg });
-        }
+      } catch {
+        // Not authenticated yet; stay on sign-in screen
       }
     })();
     return () => {
@@ -160,28 +142,29 @@ export function AdminInbox() {
     try {
       const valid = await verifyAdminToken(candidate);
       if (!valid) {
-        setAuthError("Invalid admin token.");
+        setAuthError("Invalid credentials.");
         return;
       }
-      sessionStorage.setItem(SESSION_KEY, candidate);
-      setToken(candidate);
       setTokenInput("");
       setIsAuthenticated(true);
-      await loadMessages(candidate);
+      await loadMessages();
     } catch (err) {
       setAuthError(
         err instanceof Error
           ? err.message
-          : "Unable to verify admin token with Worker."
+          : "Unable to verify credentials with Worker."
       );
     } finally {
       setAuthLoading(false);
     }
   };
 
-  const handleSignOut = () => {
-    sessionStorage.removeItem(SESSION_KEY);
-    setToken("");
+  const handleSignOut = async () => {
+    try {
+      await logoutAdmin();
+    } catch {
+      // Ignore network failure during logout cleanup
+    }
     setIsAuthenticated(false);
     dispatch({ type: "SET_MESSAGES", messages: [] });
     setBanner(null);
@@ -221,7 +204,7 @@ export function AdminInbox() {
           status: nextStatus,
         });
       },
-      commit: () => updateMessageStatus(token, message.id, nextStatus),
+      commit: () => updateMessageStatus(message.id, nextStatus),
       rollback: () => {
         dispatch({
           type: "ROLLBACK_STATUS",
@@ -278,7 +261,7 @@ export function AdminInbox() {
         });
       },
       commit: () =>
-        createAdminReply(token, targetMessageId, trimmed, clientReplyId),
+        createAdminReply(targetMessageId, trimmed, clientReplyId),
       onSuccess: (confirmed) => {
         dispatch({
           type: "CONFIRM_REPLY",
@@ -333,7 +316,7 @@ export function AdminInbox() {
       applyOptimistic: () => {
         dispatch({ type: "OPTIMISTIC_DELETE", messageId: target.id });
       },
-      commit: () => deleteAdminMessage(token, target.id),
+      commit: () => deleteAdminMessage(target.id),
       rollback: () => {
         dispatch({
           type: "RESTORE_MESSAGE",
@@ -454,7 +437,7 @@ export function AdminInbox() {
         <div className="flex flex-wrap items-center gap-3">
           <button
             type="button"
-            onClick={() => void loadMessages(token)}
+            onClick={() => void loadMessages()}
             disabled={loadingInbox}
             className="inline-flex min-h-[44px] items-center gap-2 rounded-[8px] border border-[#2A2A2A] bg-[#141414] px-4 py-2 text-sm font-medium text-[#F5F5F0] transition-colors hover:border-[#F5D90A] hover:text-[#F5D90A] disabled:opacity-60"
           >
@@ -467,7 +450,7 @@ export function AdminInbox() {
 
           <button
             type="button"
-            onClick={handleSignOut}
+            onClick={() => void handleSignOut()}
             className="inline-flex min-h-[44px] items-center gap-2 rounded-[8px] border border-[#2A2A2A] bg-[#141414] px-4 py-2 text-sm font-medium text-[#A1A1AA] transition-colors hover:border-red-500/50 hover:text-red-300"
           >
             <LogOut className="h-4 w-4" aria-hidden="true" />
