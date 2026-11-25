@@ -8,7 +8,7 @@ enabled = true
 [vars]
 # Comma-separated allowed origins for CORS and CSRF Origin validation.
 # Remove localhost origins in production if not needed, or keep separated per environment.
-ALLOWED_ORIGINS = "https://sakthib.pages.dev,https://portfolio.sakthib.workers.dev,http://localhost:3000"
+ALLOWED_ORIGINS = "https://sakthib.pages.dev,https://portfolio.sakthib.workers.dev,http://localhost:3000,http://127.0.0.1:3000"
 
 [[d1_databases]]
 binding = "DB"

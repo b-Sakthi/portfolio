@@ -75,13 +75,26 @@ function logSecurityEvent(
 function getAllowedOrigins(env: WorkerEnv): Set<string> {
   const raw =
     env.ALLOWED_ORIGINS ||
-    "https://sakthib.pages.dev,https://portfolio.sakthib.workers.dev,http://localhost:3000";
+    "https://sakthib.pages.dev,https://portfolio.sakthib.workers.dev,http://localhost:3000,http://127.0.0.1:3000";
   return new Set(
     raw
       .split(",")
       .map((s) => s.trim())
       .filter((s) => s.length > 0 && s !== "*")
   );
+}
+
+function isOriginAllowed(origin: string, allowedOrigins: Set<string>): boolean {
+  if (allowedOrigins.has(origin)) {
+    return true;
+  }
+  if (
+    allowedOrigins.has("https://sakthib.pages.dev") &&
+    /^https:\/\/[a-z0-9-]+\.sakthib\.pages\.dev$/.test(origin)
+  ) {
+    return true;
+  }
+  return false;
 }
 
 function getTrustedClientIp(request: Request): string {
@@ -101,7 +114,7 @@ function getCorsHeaders(
     Vary: "Origin",
   };
 
-  if (origin && allowedOrigins.has(origin)) {
+  if (origin && isOriginAllowed(origin, allowedOrigins)) {
     base["Access-Control-Allow-Origin"] = origin;
   }
 
@@ -464,7 +477,7 @@ export async function handleRequest(
   const clientIp = getTrustedClientIp(request);
 
   // Reject disallowed browser origins explicitly
-  if (origin && !allowedOrigins.has(origin)) {
+  if (origin && !isOriginAllowed(origin, allowedOrigins)) {
     logSecurityEvent("cors_origin_rejected", {
       method: request.method,
       path,
@@ -759,7 +772,7 @@ export async function handleRequest(
       request.method === "PATCH" ||
       request.method === "DELETE"
     ) {
-      if (!origin || !allowedOrigins.has(origin)) {
+      if (!origin || !isOriginAllowed(origin, allowedOrigins)) {
         logSecurityEvent("csrf_rejected", {
           method: request.method,
           path,
