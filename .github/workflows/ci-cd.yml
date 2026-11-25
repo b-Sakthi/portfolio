@@ -109,6 +109,15 @@ jobs:
           name: portfolio-out
           path: out
 
+      - name: Ensure Cloudflare Pages project exists
+        uses: cloudflare/wrangler-action@v3
+        continue-on-error: true
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: "4"
+          command: pages project create ${{ vars.CLOUDFLARE_PAGES_PROJECT || 'sakthib' }} --production-branch=main
+
       - name: Deploy out/ to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
         with:
