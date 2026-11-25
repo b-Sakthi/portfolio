@@ -475,6 +475,21 @@ function normalizeVisitPath(raw: unknown): string | null {
   return cleaned.endsWith("/") ? cleaned : `${cleaned}/`;
 }
 
+function sanitizeReferrer(raw: unknown): string | null {
+  if (typeof raw !== "string") return null;
+  const trimmed = raw.trim();
+  if (!trimmed) return null;
+  try {
+    const parsed = new URL(trimmed);
+    // Strip query parameters and hashes from referrer for visitor privacy
+    return `${parsed.protocol}//${parsed.host}${parsed.pathname}`.slice(0, 300);
+  } catch {
+    // If not a full URL, strip query and hash parameters manually
+    const cleaned = trimmed.split(/[?#]/)[0]?.slice(0, 300) || "";
+    return cleaned || null;
+  }
+}
+
 export async function handleRequest(
   request: Request,
   env: WorkerEnv
@@ -558,11 +573,7 @@ export async function handleRequest(
       );
     }
 
-    const rawReferrer =
-      typeof parsed.data.referrer === "string"
-        ? parsed.data.referrer.trim().slice(0, 500)
-        : "";
-    const referrer = rawReferrer || null;
+    const referrer = sanitizeReferrer(parsed.data.referrer);
 
     const rawVisitorId =
       typeof parsed.data.visitorId === "string"
@@ -575,6 +586,23 @@ export async function handleRequest(
         );
 
     try {
+      // 5-second server-side deduplication window per visitor and path
+      const fiveSecsAgo = new Date(Date.now() - 5000).toISOString();
+      const recentVisit = await env.DB.prepare(
+        `SELECT id FROM page_visits
+         WHERE visitor_id = ? AND path = ? AND created_at >= ?`
+      )
+        .bind(visitorId, visitPath, fiveSecsAgo)
+        .first<{ id: string }>();
+
+      if (recentVisit) {
+        return jsonResponse(
+          { ok: true, id: recentVisit.id, deduplicated: true },
+          200,
+          cors
+        );
+      }
+
       const id = crypto.randomUUID();
       const now = new Date().toISOString();
       const result = await env.DB.prepare(
@@ -595,119 +623,6 @@ export async function handleRequest(
       return jsonResponse({ ok: true, id, createdAt: now }, 201, cors);
     } catch (err) {
       console.error("D1 visit insert error:", err);
-      return jsonResponse(
-        { ok: false, error: "Internal server error." },
-        500,
-        cors
-      );
-    }
-  }
-
-  // Public analytics summary (aggregate counts only, no PII)
-  if (path === "/api/analytics/summary") {
-    if (request.method !== "GET") {
-      return jsonResponse(
-        { ok: false, error: "Method not allowed." },
-        405,
-        cors,
-        { Allow: "GET, OPTIONS" }
-      );
-    }
-
-    const allowed = await enforceRateLimit(env.PUBLIC_LIMITER, clientIp);
-    if (!allowed) {
-      return jsonResponse(
-        { ok: false, error: "Too many requests." },
-        429,
-        cors,
-        { "Retry-After": "60" }
-      );
-    }
-
-    const rawDays = Number(url.searchParams.get("days") || "30");
-    const days = Number.isFinite(rawDays)
-      ? Math.min(90, Math.max(1, Math.floor(rawDays)))
-      : 30;
-
-    const nowMs = Date.now();
-    const todayStart = `${new Date(nowMs).toISOString().slice(0, 10)}T00:00:00.000Z`;
-    const last7Start = new Date(nowMs - 7 * 24 * 60 * 60 * 1000).toISOString();
-    const rangeStart = `${new Date(nowMs - (days - 1) * 24 * 60 * 60 * 1000)
-      .toISOString()
-      .slice(0, 10)}T00:00:00.000Z`;
-
-    try {
-      const totals = await env.DB.prepare(
-        `SELECT COUNT(DISTINCT visitor_id) AS total_visitors, COUNT(*) AS total_views
-         FROM page_visits`
-      ).first<{ total_visitors: number; total_views: number }>();
-
-      const today = await env.DB.prepare(
-        `SELECT COUNT(DISTINCT visitor_id) AS visitors, COUNT(*) AS views
-         FROM page_visits
-         WHERE created_at >= ?`
-      )
-        .bind(todayStart)
-        .first<{ visitors: number; views: number }>();
-
-      const last7 = await env.DB.prepare(
-        `SELECT COUNT(DISTINCT visitor_id) AS visitors, COUNT(*) AS views
-         FROM page_visits
-         WHERE created_at >= ?`
-      )
-        .bind(last7Start)
-        .first<{ visitors: number; views: number }>();
-
-      const dailyRes = await env.DB.prepare(
-        `SELECT substr(created_at, 1, 10) AS date,
-                COUNT(DISTINCT visitor_id) AS visitors,
-                COUNT(*) AS views
-         FROM page_visits
-         WHERE created_at >= ?
-         GROUP BY substr(created_at, 1, 10)
-         ORDER BY date ASC`
-      )
-        .bind(rangeStart)
-        .all<{ date: string; visitors: number; views: number }>();
-
-      const topPagesRes = await env.DB.prepare(
-        `SELECT path,
-                COUNT(DISTINCT visitor_id) AS visitors,
-                COUNT(*) AS views
-         FROM page_visits
-         GROUP BY path
-         ORDER BY views DESC, visitors DESC
-         LIMIT 10`
-      ).all<{ path: string; visitors: number; views: number }>();
-
-      return jsonResponse(
-        {
-          ok: true,
-          data: {
-            totalVisitors: Number(totals?.total_visitors ?? 0),
-            totalPageViews: Number(totals?.total_views ?? 0),
-            todayVisitors: Number(today?.visitors ?? 0),
-            todayPageViews: Number(today?.views ?? 0),
-            last7DaysVisitors: Number(last7?.visitors ?? 0),
-            last7DaysPageViews: Number(last7?.views ?? 0),
-            days,
-            daily: dailyRes.results.map((r) => ({
-              date: r.date,
-              visitors: Number(r.visitors ?? 0),
-              views: Number(r.views ?? 0),
-            })),
-            topPages: topPagesRes.results.map((r) => ({
-              path: r.path,
-              visitors: Number(r.visitors ?? 0),
-              views: Number(r.views ?? 0),
-            })),
-          },
-        },
-        200,
-        cors
-      );
-    } catch (err) {
-      console.error("D1 analytics summary error:", err);
       return jsonResponse(
         { ok: false, error: "Internal server error." },
         500,
@@ -1020,6 +935,109 @@ export async function handleRequest(
         );
       }
       return jsonResponse({ ok: true }, 200, cors);
+    }
+
+    // GET /api/admin/analytics/summary -> Strictly Admin Protected
+    if (path === "/api/admin/analytics/summary") {
+      if (request.method !== "GET") {
+        return jsonResponse(
+          { ok: false, error: "Method not allowed." },
+          405,
+          cors,
+          { Allow: "GET, OPTIONS" }
+        );
+      }
+
+      const rawDays = Number(url.searchParams.get("days") || "30");
+      const days = Number.isFinite(rawDays)
+        ? Math.min(90, Math.max(1, Math.floor(rawDays)))
+        : 30;
+
+      const nowMs = Date.now();
+      const todayStart = `${new Date(nowMs).toISOString().slice(0, 10)}T00:00:00.000Z`;
+      const last7Start = new Date(nowMs - 7 * 24 * 60 * 60 * 1000).toISOString();
+      const rangeStart = `${new Date(nowMs - (days - 1) * 24 * 60 * 60 * 1000)
+        .toISOString()
+        .slice(0, 10)}T00:00:00.000Z`;
+
+      try {
+        const totals = await env.DB.prepare(
+          `SELECT COUNT(DISTINCT visitor_id) AS total_visitors, COUNT(*) AS total_views
+           FROM page_visits`
+        ).first<{ total_visitors: number; total_views: number }>();
+
+        const today = await env.DB.prepare(
+          `SELECT COUNT(DISTINCT visitor_id) AS visitors, COUNT(*) AS views
+           FROM page_visits
+           WHERE created_at >= ?`
+        )
+          .bind(todayStart)
+          .first<{ visitors: number; views: number }>();
+
+        const last7 = await env.DB.prepare(
+          `SELECT COUNT(DISTINCT visitor_id) AS visitors, COUNT(*) AS views
+           FROM page_visits
+           WHERE created_at >= ?`
+        )
+          .bind(last7Start)
+          .first<{ visitors: number; views: number }>();
+
+        const dailyRes = await env.DB.prepare(
+          `SELECT substr(created_at, 1, 10) AS date,
+                  COUNT(DISTINCT visitor_id) AS visitors,
+                  COUNT(*) AS views
+           FROM page_visits
+           WHERE created_at >= ?
+           GROUP BY substr(created_at, 1, 10)
+           ORDER BY date ASC`
+        )
+          .bind(rangeStart)
+          .all<{ date: string; visitors: number; views: number }>();
+
+        const topPagesRes = await env.DB.prepare(
+          `SELECT path,
+                  COUNT(DISTINCT visitor_id) AS visitors,
+                  COUNT(*) AS views
+           FROM page_visits
+           GROUP BY path
+           ORDER BY views DESC, visitors DESC
+           LIMIT 10`
+        ).all<{ path: string; visitors: number; views: number }>();
+
+        return jsonResponse(
+          {
+            ok: true,
+            data: {
+              totalVisitors: Number(totals?.total_visitors ?? 0),
+              totalPageViews: Number(totals?.total_views ?? 0),
+              todayVisitors: Number(today?.visitors ?? 0),
+              todayPageViews: Number(today?.views ?? 0),
+              last7DaysVisitors: Number(last7?.visitors ?? 0),
+              last7DaysPageViews: Number(last7?.views ?? 0),
+              days,
+              daily: dailyRes.results.map((r) => ({
+                date: r.date,
+                visitors: Number(r.visitors ?? 0),
+                views: Number(r.views ?? 0),
+              })),
+              topPages: topPagesRes.results.map((r) => ({
+                path: r.path,
+                visitors: Number(r.visitors ?? 0),
+                views: Number(r.views ?? 0),
+              })),
+            },
+          },
+          200,
+          cors
+        );
+      } catch (err) {
+        console.error("D1 analytics summary error:", err);
+        return jsonResponse(
+          { ok: false, error: "Internal server error." },
+          500,
+          cors
+        );
+      }
     }
 
     // GET /api/admin/messages

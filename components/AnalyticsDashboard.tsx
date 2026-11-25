@@ -7,12 +7,20 @@ import {
   Calendar,
   Eye,
   Loader2,
+  Lock,
+  LogOut,
   RefreshCw,
   Users,
 } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import { useCallback, useEffect, useId, useMemo, useState, type FormEvent } from "react";
 import type { AnalyticsSummary, DailyVisitStat } from "@/lib/analytics-types";
-import { fetchAnalyticsSummary } from "@/lib/worker-api";
+import { siteConfig } from "@/lib/site-config";
+import {
+  fetchAnalyticsSummary,
+  logoutAdmin,
+  verifyAdminToken,
+} from "@/lib/worker-api";
 
 const RANGE_OPTIONS = [7, 14, 30] as const;
 type RangeDays = (typeof RANGE_OPTIONS)[number];
@@ -47,10 +55,17 @@ function formatShortDate(isoDate: string): string {
 }
 
 export function AnalyticsDashboard() {
+  const tokenInputId = useId();
   const [days, setDays] = useState<RangeDays>(14);
   const [summary, setSummary] = useState<AnalyticsSummary | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
+
+  // Reusable admin authentication states
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [tokenInput, setTokenInput] = useState<string>("");
+  const [authLoading, setAuthLoading] = useState<boolean>(false);
+  const [authError, setAuthError] = useState<string>("");
 
   const loadAnalytics = useCallback(async (selectedDays: RangeDays) => {
     setLoading(true);
@@ -58,40 +73,85 @@ export function AnalyticsDashboard() {
     try {
       const data = await fetchAnalyticsSummary(selectedDays);
       setSummary(data);
+      setIsAuthenticated(true);
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Unable to load visitor analytics."
-      );
+      const msg = err instanceof Error ? err.message : "Unable to load visitor analytics.";
+      if (msg === "Unauthorized") {
+        setIsAuthenticated(false);
+        setAuthError("Admin session required. Please authenticate to view analytics.");
+      } else {
+        setError(msg);
+      }
     } finally {
       setLoading(false);
     }
   }, []);
 
+  // Verify existing admin HttpOnly session cookie on mount
   useEffect(() => {
+    if (!siteConfig.workerUrl) return;
+
     let active = true;
     void fetchAnalyticsSummary(days)
       .then((data) => {
         if (!active) return;
         setSummary(data);
+        setIsAuthenticated(true);
         setError("");
       })
       .catch((err) => {
         if (!active) return;
-        setError(
-          err instanceof Error
-            ? err.message
-            : "Unable to load visitor analytics."
-        );
+        const msg = err instanceof Error ? err.message : "Unable to load visitor analytics.";
+        if (msg === "Unauthorized") {
+          setIsAuthenticated(false);
+        } else {
+          setError(msg);
+        }
       })
       .finally(() => {
         if (active) setLoading(false);
       });
+
     return () => {
       active = false;
     };
   }, [days]);
+
+  const handleLogin = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const candidate = tokenInput.trim();
+    if (!candidate) {
+      setAuthError("Please enter your admin token.");
+      return;
+    }
+
+    setAuthLoading(true);
+    setAuthError("");
+    try {
+      const ok = await verifyAdminToken(candidate);
+      if (!ok) {
+        setAuthError("Invalid admin token. Access denied.");
+        return;
+      }
+      setIsAuthenticated(true);
+      setTokenInput("");
+      await loadAnalytics(days);
+    } catch (err) {
+      setAuthError(err instanceof Error ? err.message : "Authentication failed.");
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handleSignOut = async () => {
+    try {
+      await logoutAdmin();
+    } finally {
+      setIsAuthenticated(false);
+      setSummary(null);
+      setAuthError("Signed out of admin session.");
+    }
+  };
 
   const series = useMemo(
     () => (summary ? buildContinuousSeries(summary.daily, days) : []),
@@ -110,6 +170,81 @@ export function AnalyticsDashboard() {
         : 1,
     [summary]
   );
+
+  // Unauthenticated Barrier
+  if (!isAuthenticated && !loading) {
+    return (
+      <section className="mx-auto max-w-md py-8">
+        <div className="rounded-[16px] border border-[#242424] bg-[#141414] p-6 sm:p-8">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#F5D90A]/10 text-[#F5D90A]">
+            <Lock className="h-6 w-6" aria-hidden="true" />
+          </div>
+
+          <h1 className="font-display mt-4 text-2xl font-bold text-[#F5F5F0]">
+            Private Analytics
+          </h1>
+          <p className="mt-2 text-sm text-[#A1A1AA]">
+            Visitor metrics and traffic analytics are restricted to authenticated administrators.
+          </p>
+
+          <form onSubmit={handleLogin} className="mt-6 space-y-4">
+            <div>
+              <label
+                htmlFor={tokenInputId}
+                className="mb-2 block text-sm font-medium text-[#F5F5F0]"
+              >
+                Admin Token
+              </label>
+              <input
+                id={tokenInputId}
+                type="password"
+                autoComplete="current-password"
+                required
+                value={tokenInput}
+                onChange={(e) => setTokenInput(e.target.value)}
+                placeholder="Enter server-side ADMIN_TOKEN"
+                className="min-h-[48px] w-full rounded-[8px] border border-[#2A2A2A] bg-[#0B0B0B] px-4 py-3 text-base text-[#F5F5F0] placeholder:text-[#71717A] focus:border-[#F5D90A]"
+              />
+            </div>
+
+            {authError && (
+              <p
+                role="alert"
+                className="rounded-[8px] border border-red-500/40 bg-red-500/10 p-3 text-xs text-red-200"
+              >
+                {authError}
+              </p>
+            )}
+
+            <button
+              type="submit"
+              disabled={authLoading}
+              className="inline-flex min-h-[48px] w-full items-center justify-center gap-2 rounded-[8px] bg-[#F5D90A] px-5 py-3 font-display text-sm font-bold text-[#0B0B0B] transition-colors hover:bg-[#FFE524] disabled:opacity-70"
+            >
+              {authLoading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                  <span>Verifying...</span>
+                </>
+              ) : (
+                <span>Unlock Analytics</span>
+              )}
+            </button>
+          </form>
+
+          <div className="mt-5 border-t border-[#242424] pt-4 text-center">
+            <Link
+              href="/admin/"
+              prefetch={false}
+              className="text-xs text-[#A1A1AA] transition-colors hover:text-[#F5D90A]"
+            >
+              Go to Admin Inbox →
+            </Link>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="space-y-8">
@@ -165,6 +300,23 @@ export function AnalyticsDashboard() {
               aria-hidden="true"
             />
             <span>Refresh</span>
+          </button>
+
+          <Link
+            href="/admin/"
+            prefetch={false}
+            className="inline-flex min-h-[44px] items-center gap-2 rounded-[8px] border border-[#2A2A2A] bg-[#141414] px-4 py-2 text-sm font-medium text-[#F5F5F0] transition-colors hover:border-[#F5D90A] hover:text-[#F5D90A]"
+          >
+            <span>Admin Inbox</span>
+          </Link>
+
+          <button
+            type="button"
+            onClick={() => void handleSignOut()}
+            className="inline-flex min-h-[44px] items-center gap-2 rounded-[8px] border border-[#2A2A2A] bg-[#141414] px-4 py-2 text-sm font-medium text-[#A1A1AA] transition-colors hover:border-red-500/50 hover:text-red-300"
+          >
+            <LogOut className="h-4 w-4" aria-hidden="true" />
+            <span>Sign Out</span>
           </button>
         </div>
       </div>

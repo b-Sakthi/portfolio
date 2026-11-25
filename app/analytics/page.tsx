@@ -6,7 +6,11 @@ import { Navbar } from "@/components/Navbar";
 export const metadata: Metadata = {
   title: "Visitor Analytics",
   description:
-    "Live visitor and page view analytics for Sakthi B's portfolio.",
+    "Private visitor and page view analytics for Sakthi B's portfolio.",
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 export default function AnalyticsPage() {

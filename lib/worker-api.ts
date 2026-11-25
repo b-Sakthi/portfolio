@@ -253,13 +253,17 @@ export async function fetchAnalyticsSummary(
 ): Promise<AnalyticsSummary> {
   const base = getBaseUrl(baseUrl);
   const res = await fetch(
-    `${base}/api/analytics/summary?days=${encodeURIComponent(String(days))}`,
+    `${base}/api/admin/analytics/summary?days=${encodeURIComponent(String(days))}`,
     {
       method: "GET",
+      credentials: "include",
       cache: "no-store",
     }
   );
 
+  if (res.status === 401) {
+    throw new Error("Unauthorized");
+  }
   if (!res.ok) {
     throw new Error(await parseError(res, "Failed to load analytics"));
   }

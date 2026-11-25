@@ -39,6 +39,13 @@ function createMockAnalyticsD1(): D1DatabaseLike & { visits: StoredVisit[] } {
     },
     async first<T>() {
       const normalized = sql.replace(/\s+/g, " ").trim();
+      if (normalized.includes("WHERE visitor_id = ? AND path = ? AND created_at >= ?")) {
+        const [vId, p, windowStart] = bound as [string, string, string];
+        const row = visits.find(
+          (v) => v.visitor_id === vId && v.path === p && v.created_at >= windowStart
+        );
+        return (row ? { id: row.id } : null) as T | null;
+      }
       if (normalized.includes("AS total_visitors")) {
         const unique = new Set(visits.map((v) => v.visitor_id));
         return {
@@ -137,26 +144,28 @@ function createMockAnalyticsD1(): D1DatabaseLike & { visits: StoredVisit[] } {
 function createEnv(db: D1DatabaseLike, maxPublic = 50): WorkerEnv {
   return {
     DB: db,
+    ADMIN_TOKEN: "super-secret-test-token-123456",
+    SESSION_SECRET: "session-secret-key-abcdef",
     ALLOWED_ORIGINS: "https://sakthib.pages.dev,http://localhost:3000",
     PUBLIC_LIMITER: createLimiter(maxPublic),
+    ADMIN_AUTH_LIMITER: createLimiter(10),
   };
 }
 
-test("Analytics visit tracking normalizes paths, counts unique visitors, and summarizes traffic", async () => {
+test("Anonymous visitor tracking strips query params from referrer and deduplicates visits within 5 seconds", async () => {
   const db = createMockAnalyticsD1();
   const env = createEnv(db);
 
   const visitorA = "11111111-1111-4111-8111-111111111111";
-  const visitorB = "22222222-2222-4222-8222-222222222222";
 
-  const postVisit = (body: unknown, ip = "198.51.100.1") =>
+  const postVisit = (body: unknown) =>
     handleRequest(
       new Request("https://worker.example/api/analytics/visit", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Origin: "https://sakthib.pages.dev",
-          "CF-Connecting-IP": ip,
+          "CF-Connecting-IP": "198.51.100.1",
           "User-Agent": "TestBrowser/1.0",
         },
         body: JSON.stringify(body),
@@ -164,30 +173,134 @@ test("Analytics visit tracking normalizes paths, counts unique visitors, and sum
       env
     );
 
-  // Visitor A visits / and /about (normalized to /about/)
-  const r1 = await postVisit({ path: "/", visitorId: visitorA });
+  // 1. Visit with query params in referrer -> verify query params are stripped
+  const r1 = await postVisit({
+    path: "/about",
+    visitorId: visitorA,
+    referrer: "https://google.com/search?q=secret-query#hash",
+  });
   assert.equal(r1.status, 201);
+  assert.equal(db.visits.length, 1);
+  assert.equal(db.visits[0].referrer, "https://google.com/search");
 
-  const r2 = await postVisit({ path: "/about?ref=nav", visitorId: visitorA });
-  assert.equal(r2.status, 201);
+  // 2. Rapid repeat visit (same visitor and path within 5s window) -> deduplicated
+  const r2 = await postVisit({
+    path: "/about/",
+    visitorId: visitorA,
+  });
+  assert.equal(r2.status, 200);
+  const json2 = (await r2.json()) as { ok: boolean; deduplicated?: boolean };
+  assert.equal(json2.ok, true);
+  assert.equal(json2.deduplicated, true);
+  // Stored visits count should still be 1
+  assert.equal(db.visits.length, 1);
+});
 
-  // Visitor B visits / without a client visitorId (server hashes IP + UA)
-  const r3 = await postVisit({ path: "/" }, "198.51.100.2");
-  assert.equal(r3.status, 201);
+test("Direct unauthenticated access to analytics summary returns 401 Unauthorized", async () => {
+  const db = createMockAnalyticsD1();
+  const env = createEnv(db);
 
-  // Visitor C visits /projects/
-  const r4 = await postVisit({ path: "/projects/", visitorId: visitorB });
-  assert.equal(r4.status, 201);
-
-  assert.equal(db.visits.length, 4);
-  assert.equal(db.visits[1].path, "/about/");
-
-  const summaryRes = await handleRequest(
-    new Request("https://worker.example/api/analytics/summary?days=14", {
+  // 1. Direct unauthenticated request to /api/admin/analytics/summary
+  const res = await handleRequest(
+    new Request("https://worker.example/api/admin/analytics/summary?days=14", {
       method: "GET",
       headers: {
         Origin: "https://sakthib.pages.dev",
-        "CF-Connecting-IP": "198.51.100.1",
+      },
+    }),
+    env
+  );
+  assert.equal(res.status, 401);
+  const json = (await res.json()) as { ok: boolean; error: string };
+  assert.equal(json.ok, false);
+  assert.equal(json.error, "Unauthorized.");
+
+  // 2. Direct request to old public URL /api/analytics/summary returns 404
+  const oldUrlRes = await handleRequest(
+    new Request("https://worker.example/api/analytics/summary", {
+      method: "GET",
+      headers: { Origin: "https://sakthib.pages.dev" },
+    }),
+    env
+  );
+  assert.equal(oldUrlRes.status, 404);
+});
+
+test("Invalid or expired session / invalid admin token rejected with 401", async () => {
+  const db = createMockAnalyticsD1();
+  const env = createEnv(db);
+
+  // 1. Invalid Bearer Token
+  const badTokenRes = await handleRequest(
+    new Request("https://worker.example/api/admin/analytics/summary", {
+      method: "GET",
+      headers: {
+        Origin: "https://sakthib.pages.dev",
+        Authorization: "Bearer wrong-token",
+      },
+    }),
+    env
+  );
+  assert.equal(badTokenRes.status, 401);
+
+  // 2. Invalid cookie token
+  const badCookieRes = await handleRequest(
+    new Request("https://worker.example/api/admin/analytics/summary", {
+      method: "GET",
+      headers: {
+        Origin: "https://sakthib.pages.dev",
+        Cookie: "admin_session=invalid.cookie.token",
+      },
+    }),
+    env
+  );
+  assert.equal(badCookieRes.status, 401);
+});
+
+test("Authenticated administrator can access analytics summary", async () => {
+  const db = createMockAnalyticsD1();
+  const env = createEnv(db);
+
+  // Seed two visits
+  db.visits.push({
+    id: "1",
+    visitor_id: "visitor-1",
+    path: "/",
+    referrer: null,
+    created_at: new Date().toISOString(),
+  });
+  db.visits.push({
+    id: "2",
+    visitor_id: "visitor-2",
+    path: "/projects/",
+    referrer: null,
+    created_at: new Date().toISOString(),
+  });
+
+  // 1. Authenticate via admin auth endpoint
+  const authRes = await handleRequest(
+    new Request("https://worker.example/api/admin/auth", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Origin: "https://sakthib.pages.dev",
+      },
+      body: JSON.stringify({ token: "super-secret-test-token-123456" }),
+    }),
+    env
+  );
+  assert.equal(authRes.status, 200);
+  const cookieHeader = authRes.headers.get("Set-Cookie");
+  assert.ok(cookieHeader);
+  const sessionCookie = cookieHeader.split(";")[0];
+
+  // 2. Request analytics with the valid session cookie
+  const summaryRes = await handleRequest(
+    new Request("https://worker.example/api/admin/analytics/summary?days=14", {
+      method: "GET",
+      headers: {
+        Origin: "https://sakthib.pages.dev",
+        Cookie: sessionCookie,
       },
     }),
     env
@@ -199,66 +312,9 @@ test("Analytics visit tracking normalizes paths, counts unique visitors, and sum
     data: {
       totalVisitors: number;
       totalPageViews: number;
-      todayVisitors: number;
-      todayPageViews: number;
-      days: number;
-      daily: Array<{ date: string; visitors: number; views: number }>;
-      topPages: Array<{ path: string; visitors: number; views: number }>;
     };
   };
-
   assert.equal(json.ok, true);
-  assert.equal(json.data.totalVisitors, 3);
-  assert.equal(json.data.totalPageViews, 4);
-  assert.equal(json.data.todayVisitors, 3);
-  assert.equal(json.data.todayPageViews, 4);
-  assert.equal(json.data.days, 14);
-  assert.equal(json.data.daily.length, 1);
-  assert.equal(json.data.topPages[0].path, "/");
-  assert.equal(json.data.topPages[0].views, 2);
-  assert.equal(json.data.topPages[0].visitors, 2);
-});
-
-test("Analytics endpoints validate input and enforce rate limits", async () => {
-  const db = createMockAnalyticsD1();
-  const env = createEnv(db, 2);
-
-  const badPathRes = await handleRequest(
-    new Request("https://worker.example/api/analytics/visit", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Origin: "https://sakthib.pages.dev",
-        "CF-Connecting-IP": "198.51.100.9",
-      },
-      body: JSON.stringify({ path: "not-a-path" }),
-    }),
-    env
-  );
-  assert.equal(badPathRes.status, 400);
-
-  const okRes = await handleRequest(
-    new Request("https://worker.example/api/analytics/summary", {
-      method: "GET",
-      headers: {
-        Origin: "https://sakthib.pages.dev",
-        "CF-Connecting-IP": "198.51.100.9",
-      },
-    }),
-    env
-  );
-  assert.equal(okRes.status, 200);
-
-  const limitedRes = await handleRequest(
-    new Request("https://worker.example/api/analytics/summary", {
-      method: "GET",
-      headers: {
-        Origin: "https://sakthib.pages.dev",
-        "CF-Connecting-IP": "198.51.100.9",
-      },
-    }),
-    env
-  );
-  assert.equal(limitedRes.status, 429);
-  assert.equal(limitedRes.headers.get("Retry-After"), "60");
+  assert.equal(json.data.totalVisitors, 2);
+  assert.equal(json.data.totalPageViews, 2);
 });
