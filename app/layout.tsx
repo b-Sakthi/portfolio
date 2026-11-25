@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono, Space_Grotesk } from "next/font/google";
 import { AnalyticsTracker } from "@/components/AnalyticsTracker";
+import { FloatingActionButton } from "@/components/FloatingActionButton";
 import { MotionProvider } from "@/components/MotionProvider";
 import { siteConfig } from "@/lib/site-config";
 import "./globals.css";
@@ -96,6 +97,7 @@ export default function RootLayout({
         <MotionProvider>
           <AnalyticsTracker />
           {children}
+          <FloatingActionButton />
         </MotionProvider>
       </body>
     </html>
