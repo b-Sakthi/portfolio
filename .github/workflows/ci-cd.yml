@@ -120,6 +120,14 @@ jobs:
           wranglerVersion: "4"
           command: deploy --config wrangler.jsonc
 
+      - name: Deploy static out/ to Cloudflare Pages (sakthib.pages.dev)
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: "4"
+          command: pages deploy out --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT || 'sakthib' }} --branch=main
+
   deploy-worker:
     name: Deploy Backend (Cloudflare Worker)
     needs: [lint-and-typecheck, test-worker, build-frontend]
