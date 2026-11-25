@@ -15,10 +15,10 @@ export const siteConfig = {
    */
   siteUrl: process.env.NEXT_PUBLIC_SITE_URL || "https://sakthib.pages.dev",
   /**
-   * Resume route (/resume/) provides a print-ready resume page.
-   * You can also place a static PDF at public/Sakthi_B_Resume.pdf and update this path.
+   * Static resume PDF served from public/Sakthi_B_Resume.pdf.
+   * /resume/ also remains available as a web view.
    */
-  resumeUrl: "/resume/",
+  resumeUrl: "/Sakthi_B_Resume.pdf",
   /**
    * Cloudflare Worker base URL for contact submissions and admin inbox APIs.
    * Defaults to the production Worker (https://sakthi-portfolio-contact-worker.sakthib.workers.dev);

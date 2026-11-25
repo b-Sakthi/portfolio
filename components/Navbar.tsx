@@ -122,14 +122,15 @@ export function Navbar() {
           </nav>
 
           <div className="flex items-center gap-3">
-            <Link
+            <a
               href={siteConfig.resumeUrl}
-              prefetch={false}
+              target="_blank"
+              rel="noopener noreferrer"
               className="hidden min-h-[44px] items-center gap-2 rounded-[8px] border border-[#2A2A2A] bg-[#141414] px-4 py-2 text-sm font-medium text-[#F5F5F0] transition-colors hover:border-[#F5D90A] hover:text-[#F5D90A] sm:inline-flex"
             >
               <Download className="h-4 w-4" aria-hidden="true" />
               <span>Resume</span>
-            </Link>
+            </a>
           </div>
         </div>
       </header>
@@ -236,15 +237,16 @@ export function Navbar() {
               </div>
 
               <div className="border-t border-[#242424] p-4">
-                <Link
+                <a
                   href={siteConfig.resumeUrl}
-                  prefetch={false}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   onClick={() => setMobileOpen(false)}
                   className="flex min-h-[48px] items-center justify-center gap-2 rounded-[8px] border border-[#2A2A2A] bg-[#141414] px-4 py-2.5 text-base font-medium text-[#F5F5F0] transition-colors hover:border-[#F5D90A] hover:text-[#F5D90A]"
                 >
                   <Download className="h-4 w-4" aria-hidden="true" />
                   <span>Resume</span>
-                </Link>
+                </a>
               </div>
             </motion.nav>
           </>

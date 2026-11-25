@@ -108,14 +108,15 @@ export function HeroSection() {
                 /
               </span>
 
-              <Link
+              <a
                 href={siteConfig.resumeUrl}
-                prefetch={false}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="inline-flex min-h-[44px] items-center gap-2 text-sm font-medium text-[#A1A1AA] transition-colors hover:text-yellow-400"
               >
                 <Download className="h-4 w-4" aria-hidden="true" />
                 <span>Resume</span>
-              </Link>
+              </a>
             </div>
           </div>
 

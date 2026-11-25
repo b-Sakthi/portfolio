@@ -35,7 +35,7 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.siteUrl),
   title: {
-    default: `${siteConfig.name} — Software Developer | Cloud, AI & Full Stack`,
+    default: `${siteConfig.name} | Software Developer`,
     template: `%s | ${siteConfig.name}`,
   },
   description:
@@ -62,13 +62,13 @@ export const metadata: Metadata = {
     locale: "en_IN",
     url: "/",
     siteName: `${siteConfig.name} Portfolio`,
-    title: `${siteConfig.name} — Software Developer | Cloud, AI & Full Stack`,
+    title: `${siteConfig.name} | Software Developer`,
     description:
       "Software developer interested in full-stack engineering, cloud computing, computer vision, and AI-powered applications.",
   },
   twitter: {
     card: "summary_large_image",
-    title: `${siteConfig.name} — Software Developer`,
+    title: `${siteConfig.name} | Software Developer`,
     description:
       "Full-stack engineering, cloud computing, computer vision, and AI-powered applications.",
   },
