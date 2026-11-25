@@ -97,34 +97,28 @@ jobs:
           retention-days: 1
 
   deploy-frontend:
-    name: Deploy Frontend (Cloudflare Pages)
+    name: Deploy Frontend (Existing portfolio.sakthib.workers.dev)
     needs: [lint-and-typecheck, test-worker, build-frontend]
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Download static export artifact
         uses: actions/download-artifact@v4
         with:
           name: portfolio-out
           path: out
 
-      - name: Ensure Cloudflare Pages project exists
-        uses: cloudflare/wrangler-action@v3
-        continue-on-error: true
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          wranglerVersion: "4"
-          command: pages project create ${{ vars.CLOUDFLARE_PAGES_PROJECT || 'sakthib' }} --production-branch=main
-
-      - name: Deploy out/ to Cloudflare Pages
+      - name: Deploy static out/ to existing portfolio service
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           wranglerVersion: "4"
-          command: pages deploy out --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT || 'sakthib' }} --branch=main
+          command: deploy --config wrangler.jsonc
 
   deploy-worker:
     name: Deploy Backend (Cloudflare Worker)
