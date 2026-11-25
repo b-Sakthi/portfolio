@@ -33,3 +33,20 @@ CREATE INDEX IF NOT EXISTS idx_admin_replies_message_created
 CREATE UNIQUE INDEX IF NOT EXISTS idx_admin_replies_idempotency
   ON admin_replies (message_id, client_reply_id)
   WHERE client_reply_id IS NOT NULL;
+
+CREATE TABLE IF NOT EXISTS page_visits (
+  id TEXT PRIMARY KEY,
+  visitor_id TEXT NOT NULL,
+  path TEXT NOT NULL,
+  referrer TEXT,
+  created_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_page_visits_created
+  ON page_visits (created_at DESC);
+
+CREATE INDEX IF NOT EXISTS idx_page_visits_visitor_created
+  ON page_visits (visitor_id, created_at DESC);
+
+CREATE INDEX IF NOT EXISTS idx_page_visits_path_created
+  ON page_visits (path, created_at DESC);

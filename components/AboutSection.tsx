@@ -35,8 +35,8 @@ export function AboutSection() {
                 .
               </p>
               <p className="text-base leading-relaxed md:text-lg">
-                My interests include backend engineering, DevOps, applied AI,
-                and scalable systems.
+                My interests include full-stack engineering, cloud and DevOps
+                workflows, computer vision, and applied AI systems.
               </p>
             </div>
           </div>

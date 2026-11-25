@@ -1,0 +1,375 @@
+"use client";
+
+import {
+  Activity,
+  AlertCircle,
+  BarChart3,
+  Calendar,
+  Eye,
+  Loader2,
+  RefreshCw,
+  Users,
+} from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import type { AnalyticsSummary, DailyVisitStat } from "@/lib/analytics-types";
+import { fetchAnalyticsSummary } from "@/lib/worker-api";
+
+const RANGE_OPTIONS = [7, 14, 30] as const;
+type RangeDays = (typeof RANGE_OPTIONS)[number];
+
+function buildContinuousSeries(
+  daily: DailyVisitStat[],
+  days: number
+): DailyVisitStat[] {
+  const byDate = new Map(daily.map((d) => [d.date, d]));
+  const result: DailyVisitStat[] = [];
+  const now = Date.now();
+  const dayMs = 24 * 60 * 60 * 1000;
+
+  for (let i = days - 1; i >= 0; i--) {
+    const isoDate = new Date(now - i * dayMs).toISOString().slice(0, 10);
+    const existing = byDate.get(isoDate);
+    result.push(
+      existing ?? {
+        date: isoDate,
+        visitors: 0,
+        views: 0,
+      }
+    );
+  }
+  return result;
+}
+
+function formatShortDate(isoDate: string): string {
+  const [, month, day] = isoDate.split("-");
+  if (!month || !day) return isoDate;
+  return `${day}/${month}`;
+}
+
+export function AnalyticsDashboard() {
+  const [days, setDays] = useState<RangeDays>(14);
+  const [summary, setSummary] = useState<AnalyticsSummary | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string>("");
+
+  const loadAnalytics = useCallback(async (selectedDays: RangeDays) => {
+    setLoading(true);
+    setError("");
+    try {
+      const data = await fetchAnalyticsSummary(selectedDays);
+      setSummary(data);
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Unable to load visitor analytics."
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    void fetchAnalyticsSummary(days)
+      .then((data) => {
+        if (!active) return;
+        setSummary(data);
+        setError("");
+      })
+      .catch((err) => {
+        if (!active) return;
+        setError(
+          err instanceof Error
+            ? err.message
+            : "Unable to load visitor analytics."
+        );
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [days]);
+
+  const series = useMemo(
+    () => (summary ? buildContinuousSeries(summary.daily, days) : []),
+    [summary, days]
+  );
+
+  const maxViews = useMemo(
+    () => Math.max(1, ...series.map((item) => item.views)),
+    [series]
+  );
+
+  const maxPageViews = useMemo(
+    () =>
+      summary && summary.topPages.length > 0
+        ? Math.max(1, ...summary.topPages.map((p) => p.views))
+        : 1,
+    [summary]
+  );
+
+  return (
+    <section className="space-y-8">
+      {/* Header */}
+      <div className="flex flex-wrap items-end justify-between gap-4 border-b border-[#242424] pb-6">
+        <div>
+          <span className="font-mono-code text-meta text-[#F5D90A]">
+            D1 Visitor Analytics
+          </span>
+          <h1 className="text-section mt-1 text-[#F5F5F0]">
+            Portfolio Traffic
+          </h1>
+          <p className="mt-2 max-w-2xl text-sm text-[#A1A1AA]">
+            Privacy-friendly member visit and page view metrics stored in
+            Cloudflare D1 without tracking personal data.
+          </p>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-3">
+          <div
+            role="group"
+            aria-label="Time range"
+            className="inline-flex rounded-[8px] border border-[#242424] bg-[#141414] p-1"
+          >
+            {RANGE_OPTIONS.map((option) => {
+              const active = days === option;
+              return (
+                <button
+                  key={option}
+                  type="button"
+                  onClick={() => setDays(option)}
+                  aria-pressed={active}
+                  className={`min-h-[36px] rounded-[6px] px-3 text-xs font-medium transition-colors ${
+                    active
+                      ? "bg-[#F5D90A] font-semibold text-[#0B0B0B]"
+                      : "text-[#A1A1AA] hover:text-[#F5F5F0]"
+                  }`}
+                >
+                  {option}d
+                </button>
+              );
+            })}
+          </div>
+
+          <button
+            type="button"
+            onClick={() => void loadAnalytics(days)}
+            disabled={loading}
+            className="inline-flex min-h-[44px] items-center gap-2 rounded-[8px] border border-[#2A2A2A] bg-[#141414] px-4 py-2 text-sm font-medium text-[#F5F5F0] transition-colors hover:border-[#F5D90A] hover:text-[#F5D90A] disabled:opacity-60"
+          >
+            <RefreshCw
+              className={`h-4 w-4 ${loading ? "animate-spin" : ""}`}
+              aria-hidden="true"
+            />
+            <span>Refresh</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Error State */}
+      {error && (
+        <div
+          role="alert"
+          className="flex items-start gap-3 rounded-[16px] border border-red-500/40 bg-red-500/10 p-5 text-sm text-red-200"
+        >
+          <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" />
+          <div>
+            <p className="font-semibold">Could not load analytics</p>
+            <p className="mt-1 text-red-200/80">{error}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Initial Loading State */}
+      {loading && !summary && !error && (
+        <div className="flex min-h-[240px] items-center justify-center rounded-[16px] border border-[#242424] bg-[#141414]">
+          <div className="flex items-center gap-3 text-sm text-[#A1A1AA]">
+            <Loader2 className="h-5 w-5 animate-spin text-[#F5D90A]" aria-hidden="true" />
+            <span>Loading visitor metrics...</span>
+          </div>
+        </div>
+      )}
+
+      {/* Dashboard Content */}
+      {summary && (
+        <>
+          {/* KPI Cards */}
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="rounded-[16px] border border-[#242424] bg-[#141414] p-6">
+              <div className="flex items-center justify-between">
+                <span className="font-mono-code text-meta text-[#A1A1AA]">
+                  Members Visited
+                </span>
+                <Users className="h-4 w-4 text-[#F5D90A]" aria-hidden="true" />
+              </div>
+              <p className="font-display mt-3 text-4xl font-bold tracking-tight text-[#F5F5F0]">
+                {summary.totalVisitors.toLocaleString()}
+              </p>
+              <p className="mt-1 text-xs text-[#A1A1AA]">
+                Unique visitors all-time
+              </p>
+            </div>
+
+            <div className="rounded-[16px] border border-[#242424] bg-[#141414] p-6">
+              <div className="flex items-center justify-between">
+                <span className="font-mono-code text-meta text-[#A1A1AA]">
+                  Total Page Views
+                </span>
+                <Eye className="h-4 w-4 text-[#F5D90A]" aria-hidden="true" />
+              </div>
+              <p className="font-display mt-3 text-4xl font-bold tracking-tight text-[#F5F5F0]">
+                {summary.totalPageViews.toLocaleString()}
+              </p>
+              <p className="mt-1 text-xs text-[#A1A1AA]">
+                Total route visits recorded
+              </p>
+            </div>
+
+            <div className="rounded-[16px] border border-[#242424] bg-[#141414] p-6">
+              <div className="flex items-center justify-between">
+                <span className="font-mono-code text-meta text-[#A1A1AA]">
+                  Visited Today
+                </span>
+                <Activity className="h-4 w-4 text-[#F5D90A]" aria-hidden="true" />
+              </div>
+              <p className="font-display mt-3 text-4xl font-bold tracking-tight text-[#F5F5F0]">
+                {summary.todayVisitors.toLocaleString()}
+              </p>
+              <p className="mt-1 text-xs text-[#A1A1AA]">
+                {summary.todayPageViews.toLocaleString()} page views today (UTC)
+              </p>
+            </div>
+
+            <div className="rounded-[16px] border border-[#242424] bg-[#141414] p-6">
+              <div className="flex items-center justify-between">
+                <span className="font-mono-code text-meta text-[#A1A1AA]">
+                  Last 7 Days
+                </span>
+                <Calendar className="h-4 w-4 text-[#F5D90A]" aria-hidden="true" />
+              </div>
+              <p className="font-display mt-3 text-4xl font-bold tracking-tight text-[#F5F5F0]">
+                {summary.last7DaysVisitors.toLocaleString()}
+              </p>
+              <p className="mt-1 text-xs text-[#A1A1AA]">
+                {summary.last7DaysPageViews.toLocaleString()} page views in 7d
+              </p>
+            </div>
+          </div>
+
+          {/* Daily Traffic & Top Pages */}
+          <div className="grid gap-6 lg:grid-cols-3">
+            {/* Daily Chart */}
+            <div className="rounded-[16px] border border-[#242424] bg-[#141414] p-6 lg:col-span-2">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <h2 className="font-display text-lg font-bold text-[#F5F5F0]">
+                    Daily Visitors & Views
+                  </h2>
+                  <p className="text-xs text-[#A1A1AA]">
+                    Last {days} days (UTC)
+                  </p>
+                </div>
+                <div className="flex items-center gap-4 text-xs text-[#A1A1AA]">
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className="inline-block h-2.5 w-2.5 rounded-sm bg-[#F5D90A]" />
+                    Visitors
+                  </span>
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className="inline-block h-2.5 w-2.5 rounded-sm bg-[#3F3F46]" />
+                    Page Views
+                  </span>
+                </div>
+              </div>
+
+              <div className="mt-6 flex h-56 items-end gap-1.5 sm:gap-2">
+                {series.map((item) => {
+                  const viewsPct = Math.round((item.views / maxViews) * 100);
+                  const visitorsPct = Math.round(
+                    (item.visitors / maxViews) * 100
+                  );
+                  return (
+                    <div
+                      key={item.date}
+                      className="group flex h-full flex-1 flex-col items-center justify-end gap-2"
+                      title={`${item.date}: ${item.visitors} visitors, ${item.views} views`}
+                    >
+                      <div className="relative flex h-full w-full items-end justify-center">
+                        <div
+                          style={{ height: `${Math.max(viewsPct, item.views > 0 ? 6 : 2)}%` }}
+                          className="w-full max-w-[28px] rounded-t-[4px] bg-[#27272A] transition-all group-hover:bg-[#3F3F46]"
+                        />
+                        {item.visitors > 0 && (
+                          <div
+                            style={{ height: `${Math.max(visitorsPct, 6)}%` }}
+                            className="absolute bottom-0 w-full max-w-[28px] rounded-t-[4px] bg-[#F5D90A]/90 transition-all group-hover:bg-[#FFE524]"
+                          />
+                        )}
+                      </div>
+                      <span className="font-mono-code hidden text-[10px] text-[#71717A] sm:block">
+                        {days <= 14 || series.indexOf(item) % 3 === 0
+                          ? formatShortDate(item.date)
+                          : ""}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Top Pages */}
+            <div className="rounded-[16px] border border-[#242424] bg-[#141414] p-6">
+              <div className="flex items-center justify-between">
+                <h2 className="font-display text-lg font-bold text-[#F5F5F0]">
+                  Top Pages
+                </h2>
+                <BarChart3
+                  className="h-4 w-4 text-[#F5D90A]"
+                  aria-hidden="true"
+                />
+              </div>
+              <p className="mt-1 text-xs text-[#A1A1AA]">
+                Most visited routes across the portfolio
+              </p>
+
+              {summary.topPages.length === 0 ? (
+                <p className="mt-8 text-center text-sm text-[#71717A]">
+                  No page visits recorded yet.
+                </p>
+              ) : (
+                <ul className="mt-5 space-y-4">
+                  {summary.topPages.map((page) => {
+                    const widthPct = Math.max(
+                      6,
+                      Math.round((page.views / maxPageViews) * 100)
+                    );
+                    return (
+                      <li key={page.path} className="space-y-1.5">
+                        <div className="flex items-center justify-between gap-2 text-sm">
+                          <span className="font-mono-code truncate text-[#F5F5F0]">
+                            {page.path}
+                          </span>
+                          <span className="shrink-0 text-xs text-[#A1A1AA]">
+                            {page.visitors} visitors · {page.views} views
+                          </span>
+                        </div>
+                        <div className="h-1.5 w-full overflow-hidden rounded-full bg-[#242424]">
+                          <div
+                            style={{ width: `${widthPct}%` }}
+                            className="h-full rounded-full bg-[#F5D90A]"
+                          />
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </div>
+          </div>
+        </>
+      )}
+    </section>
+  );
+}

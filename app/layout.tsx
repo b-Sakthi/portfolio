@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono, Space_Grotesk } from "next/font/google";
+import { AnalyticsTracker } from "@/components/AnalyticsTracker";
 import { MotionProvider } from "@/components/MotionProvider";
 import { siteConfig } from "@/lib/site-config";
 import "./globals.css";
@@ -92,7 +93,10 @@ export default function RootLayout({
         <a href="#main-content" className="skip-link visually-hidden">
           Skip to main content
         </a>
-        <MotionProvider>{children}</MotionProvider>
+        <MotionProvider>
+          <AnalyticsTracker />
+          {children}
+        </MotionProvider>
       </body>
     </html>
   );

@@ -1,6 +1,7 @@
 "use client";
 
 import { ArrowUp } from "lucide-react";
+import Link from "next/link";
 import { siteConfig } from "@/lib/site-config";
 
 export function Footer() {
@@ -29,6 +30,13 @@ export function Footer() {
         </div>
 
         <div className="flex flex-wrap items-center gap-4 sm:gap-6">
+          <Link
+            href="/analytics/"
+            prefetch={false}
+            className="inline-flex min-h-[44px] items-center text-sm text-[#A1A1AA] transition-colors hover:text-[#F5D90A]"
+          >
+            Analytics
+          </Link>
           <a
             href={`mailto:${siteConfig.email}`}
             className="inline-flex min-h-[44px] items-center text-sm text-[#A1A1AA] transition-colors hover:text-[#F5D90A]"

@@ -358,11 +358,55 @@ export default async function CaseStudyPage({ params }: CaseStudyPageProps) {
             </div>
           </section>
 
-          {/* 7. Screenshots / Visuals & What I Learned */}
+          {/* 7. Screenshots / Visuals, Results & Limitations, & What I Learned */}
+          <section className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+            <div className="rounded-[16px] border border-[#242424] bg-[#141414] p-6 sm:p-8">
+              <span className="font-mono-code text-meta text-[#F5D90A]">
+                14 · Results &amp; Implemented Scope
+              </span>
+              <h2 className="text-subhead mt-3 text-[#F5F5F0]">
+                What Is Implemented
+              </h2>
+              <ul className="mt-5 space-y-3.5">
+                {project.resultsAndLimitations.implemented.map((item) => (
+                  <li
+                    key={item}
+                    className="flex items-start gap-3 text-sm leading-relaxed text-[#A1A1AA] sm:text-base"
+                  >
+                    <CheckCircle2
+                      className="mt-0.5 h-4 w-4 shrink-0 text-[#F5D90A]"
+                      aria-hidden="true"
+                    />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="rounded-[16px] border border-[#242424] bg-[#141414] p-6 sm:p-8">
+              <span className="font-mono-code text-meta text-[#F5D90A]">
+                15 · Limitations &amp; Current Boundaries
+              </span>
+              <h2 className="text-subhead mt-3 text-[#F5F5F0]">
+                Known Constraints
+              </h2>
+              <ul className="mt-5 space-y-3.5">
+                {project.resultsAndLimitations.limitations.map((item) => (
+                  <li
+                    key={item}
+                    className="rounded-[10px] border border-[#242424] bg-[#0B0B0B] p-4 text-sm leading-relaxed text-[#A1A1AA]"
+                  >
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </section>
+
           <section className="grid grid-cols-1 gap-8 lg:grid-cols-12">
             <div className="rounded-[16px] border border-[#242424] bg-[#141414] p-6 sm:p-8 lg:col-span-6">
               <span className="font-mono-code text-meta text-[#F5D90A]">
-                14 · Screenshots &amp; Visuals
+                16 · Screenshots &amp; Visuals
               </span>
               <h2 className="text-subhead mt-3 text-[#F5F5F0]">
                 System Visual Preview
@@ -377,7 +421,7 @@ export default async function CaseStudyPage({ params }: CaseStudyPageProps) {
 
             <div className="rounded-[16px] border border-[#242424] bg-[#141414] p-6 sm:p-8 lg:col-span-6">
               <span className="font-mono-code text-meta text-[#F5D90A]">
-                15 · What I Learned
+                17 · What I Learned
               </span>
               <h2 className="text-subhead mt-3 text-[#F5F5F0]">
                 Engineering Takeaways

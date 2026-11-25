@@ -3,6 +3,7 @@
 import {
   AlertCircle,
   ArrowLeft,
+  BarChart3,
   CheckCircle2,
   Loader2,
   Lock,
@@ -12,6 +13,7 @@ import {
   Send,
   Trash2,
 } from "lucide-react";
+import Link from "next/link";
 import {
   useCallback,
   useEffect,
@@ -435,6 +437,15 @@ export function AdminInbox() {
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
+          <Link
+            href="/analytics/"
+            prefetch={false}
+            className="inline-flex min-h-[44px] items-center gap-2 rounded-[8px] border border-[#2A2A2A] bg-[#141414] px-4 py-2 text-sm font-medium text-[#F5F5F0] transition-colors hover:border-[#F5D90A] hover:text-[#F5D90A]"
+          >
+            <BarChart3 className="h-4 w-4" aria-hidden="true" />
+            <span>Analytics</span>
+          </Link>
+
           <button
             type="button"
             onClick={() => void loadMessages()}

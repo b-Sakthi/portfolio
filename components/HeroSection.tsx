@@ -32,11 +32,11 @@ export function HeroSection() {
         {/* Top Metadata Bar */}
         <div className="mb-6 flex flex-wrap items-center justify-between gap-3 md:mb-8">
           <div className="inline-flex items-center gap-2 rounded-full border border-[#242424] bg-[#141414] px-3.5 py-1.5 text-meta text-[#A1A1AA]">
-            <MapPin className="h-3.5 w-3.5 text-yellow-400" aria-hidden="true" />
+            <MapPin className="h-3.5 w-3.5 text-[#F5D90A]" aria-hidden="true" />
             <span>{siteConfig.location}</span>
           </div>
 
-          <div className="inline-flex items-center rounded-full bg-yellow-400 px-3.5 py-1.5 text-meta font-semibold text-[#0B0B0B]">
+          <div className="inline-flex items-center rounded-full bg-[#F5D90A] px-3.5 py-1.5 text-meta font-semibold text-[#0B0B0B]">
             <span>Software Developer · Cloud &amp; AI</span>
           </div>
         </div>
@@ -47,7 +47,7 @@ export function HeroSection() {
           <div className="lg:col-span-7">
             <h1 className="font-display text-[clamp(2.15rem,1.35rem+3.8vw,4.5rem)] leading-[0.98] font-bold tracking-[-0.03em] text-[#F5F5F0]">
               <span className="block">DESIGNING.</span>
-              <span className="block text-yellow-400">BUILDING.</span>
+              <span className="block text-[#F5D90A]">BUILDING.</span>
               <span className="block">ENGINEERING</span>
               <span className="block">WHAT&apos;S NEXT.</span>
             </h1>
@@ -62,29 +62,39 @@ export function HeroSection() {
               <Link
                 href="/projects/"
                 prefetch={false}
-                className="inline-flex min-h-[48px] items-center gap-2 rounded-[8px] bg-yellow-400 px-6 py-3 font-display text-sm font-bold text-[#0B0B0B] transition-colors hover:bg-[#FFE524]"
+                className="inline-flex min-h-[48px] items-center gap-2 rounded-[8px] bg-[#F5D90A] px-6 py-3 font-display text-sm font-bold text-[#0B0B0B] transition-colors hover:bg-[#FFE524]"
               >
-                <span>Explore Projects</span>
+                <span>View Projects</span>
                 <ArrowDownRight className="h-4 w-4" aria-hidden="true" />
               </Link>
+
+              <a
+                href={siteConfig.resumeUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex min-h-[48px] items-center gap-2 rounded-[8px] border border-[#2A2A2A] bg-[#141414] px-5 py-3 font-display text-sm font-semibold text-[#F5F5F0] transition-colors hover:border-[#F5D90A] hover:text-[#F5D90A]"
+              >
+                <Download className="h-4 w-4" aria-hidden="true" />
+                <span>Download Resume</span>
+              </a>
 
               <Link
                 href="/contact/"
                 prefetch={false}
-                className="inline-flex min-h-[48px] items-center gap-2 rounded-[8px] border border-[#2A2A2A] bg-[#141414] px-6 py-3 font-display text-sm font-semibold text-[#F5F5F0] transition-colors hover:border-yellow-400 hover:text-yellow-400"
+                className="inline-flex min-h-[48px] items-center gap-2 rounded-[8px] border border-[#2A2A2A] bg-[#141414] px-5 py-3 font-display text-sm font-semibold text-[#F5F5F0] transition-colors hover:border-[#F5D90A] hover:text-[#F5D90A]"
               >
                 <Mail className="h-4 w-4" aria-hidden="true" />
                 <span>Contact Me</span>
               </Link>
             </div>
 
-            {/* Profile & Resume Links */}
+            {/* Profile Links */}
             <div className="mt-7 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-[#242424] pt-5">
               <a
                 href={siteConfig.githubUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex min-h-[44px] items-center gap-2 text-sm font-medium text-[#A1A1AA] transition-colors hover:text-yellow-400"
+                className="inline-flex min-h-[44px] items-center gap-2 text-sm font-medium text-[#A1A1AA] transition-colors hover:text-[#F5D90A]"
               >
                 <GitHubIcon className="h-4 w-4" />
                 <span>github.com/{siteConfig.githubHandle}</span>
@@ -98,24 +108,10 @@ export function HeroSection() {
                 href={siteConfig.linkedinUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex min-h-[44px] items-center gap-2 text-sm font-medium text-[#A1A1AA] transition-colors hover:text-yellow-400"
+                className="inline-flex min-h-[44px] items-center gap-2 text-sm font-medium text-[#A1A1AA] transition-colors hover:text-[#F5D90A]"
               >
                 <LinkedInIcon className="h-4 w-4" />
                 <span>LinkedIn</span>
-              </a>
-
-              <span aria-hidden="true" className="text-[#383838]">
-                /
-              </span>
-
-              <a
-                href={siteConfig.resumeUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex min-h-[44px] items-center gap-2 text-sm font-medium text-[#A1A1AA] transition-colors hover:text-yellow-400"
-              >
-                <Download className="h-4 w-4" aria-hidden="true" />
-                <span>Resume</span>
               </a>
             </div>
           </div>
@@ -125,7 +121,7 @@ export function HeroSection() {
             <div className="editorial-grid-bg rounded-[20px] border border-[#242424] bg-[#141414] p-5 sm:p-6">
               <div className="flex items-center justify-between border-b border-[#242424] pb-3.5">
                 <div>
-                  <p className="font-mono-code text-meta text-yellow-400">
+                  <p className="font-mono-code text-meta text-[#F5D90A]">
                     ENGINEER PROFILE
                   </p>
                   <p className="mt-1 font-display text-lg font-bold text-[#F5F5F0]">
@@ -147,7 +143,7 @@ export function HeroSection() {
                       <span className="font-display text-sm font-semibold text-[#F5F5F0]">
                         {pillar.title}
                       </span>
-                      <span className="font-mono-code text-xs text-yellow-400">
+                      <span className="font-mono-code text-xs text-[#F5D90A]">
                         {pillar.code}
                       </span>
                     </div>

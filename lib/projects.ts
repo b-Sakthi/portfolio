@@ -49,6 +49,10 @@ export interface ProjectCaseStudy {
   technicalChallenges: string[];
   howISolvedChallenges: string[];
   screenshotNote: string;
+  resultsAndLimitations: {
+    implemented: string[];
+    limitations: string[];
+  };
   whatILearned: string[];
   confirmationNeeded: string[];
 }
@@ -180,6 +184,17 @@ export const projects: ProjectCaseStudy[] = [
     ],
     screenshotNote:
       "Dashboard preview shows LinLearn in Simulation Mode during VM environment provisioning (not a completed terminal session). Live deployment is available at linlearn.vercel.app/dashboard.",
+    resultsAndLimitations: {
+      implemented: [
+        "Live Next.js + TypeScript web deployment at linlearn.vercel.app/dashboard with v86 WebAssembly Linux terminal integration and IndexedDB persistence.",
+        "Interactive learning missions, incident simulations (Nginx, Docker, permissions), XP/streak tracking, and BKT cognitive mastery model.",
+        "Supabase Auth/RLS policies and Redis-backed rate limiting & AI usage quotas guarding Groq AI tutor workflows.",
+      ],
+      limitations: [
+        "Browser-side v86 x86 emulation requires initial VM provisioning time and runs in Simulation Mode while the environment initializes.",
+        "Quantitative learner completion metrics and production telemetry are not published.",
+      ],
+    },
     whatILearned: [
       "Integrating WebAssembly (v86) virtualization and IndexedDB persistence in a Next.js application.",
       "How database-enforced Row-Level Security simplifies multi-tenant authorization.",
@@ -340,6 +355,17 @@ export const projects: ProjectCaseStudy[] = [
     ],
     screenshotNote:
       "Architecture and pipeline preview shown above. Live dashboard and detection frame screenshots require confirmation / asset upload.",
+    resultsAndLimitations: {
+      implemented: [
+        "Multi-service monorepo integrating Next.js + TypeScript frontend, FastAPI backend, async PostgreSQL (SQLAlchemy + Alembic), and Redis rate limiting.",
+        "Containerized local and CI orchestration via Docker Compose and GitHub Actions, backed by a 170-test Pytest suite.",
+        "Computer vision (YOLO11n + ByteTrack) and hybrid RAG (vector search + BM25 + Groq fallback) pipeline integrated at the application level.",
+      ],
+      limitations: [
+        "No public live demo URL is currently deployed; system runs via Docker Compose.",
+        "Live dashboard screenshots and measured inference latency/accuracy benchmarks are not yet attached.",
+      ],
+    },
     whatILearned: [
       "How to cleanly integrate a Next.js + TypeScript frontend with FastAPI and PostgreSQL services inside a multi-service monorepo.",
       "Packaging multi-container applications with Docker and Docker Compose so local development and CI environments behave consistently.",
@@ -476,6 +502,16 @@ export const projects: ProjectCaseStudy[] = [
     ],
     screenshotNote:
       "Interactive seat-map recommendation and architecture diagram shown above. Live UI screenshots require confirmation / asset upload.",
+    resultsAndLimitations: {
+      implemented: [
+        "Full-stack cinema booking flow deployed on Vercel with JWT role-based auth, atomic MongoDB seat reservations, and Vision IQ seat recommendations.",
+        "Dynamic pricing and admin revenue analytics separated behind admin-only routes.",
+      ],
+      limitations: [
+        "Built as a portfolio/academic full-stack system rather than connected to a commercial payment gateway or theater POS.",
+        "Load-testing throughput benchmarks are not published.",
+      ],
+    },
     whatILearned: [
       "How database-level atomic operations eliminate race conditions without heavy application-level locking.",
       "Designing practical heuristics (geometric scoring + anti-stranding) that improve both user experience and seat inventory utilization.",
@@ -607,6 +643,15 @@ export const projects: ProjectCaseStudy[] = [
     ],
     screenshotNote:
       "Telemetry architecture diagram shown above. Live dashboard and hardware/sensor screenshots require confirmation / asset upload.",
+    resultsAndLimitations: {
+      implemented: [
+        "Containerized Python REST API deployed to GCP Cloud Run with automated CI/CD, Supabase real-time database sync, and a live JavaScript dashboard.",
+      ],
+      limitations: [
+        "Live deployment URL and hardware sensor field-test screenshots are not currently linked.",
+        "Specific sensor parameter calibration details and uptime metrics are not published.",
+      ],
+    },
     whatILearned: [
       "Packaging Python APIs in Docker for stateless, serverless execution on GCP Cloud Run.",
       "Using real-time cloud database synchronization to simplify live IoT dashboards.",

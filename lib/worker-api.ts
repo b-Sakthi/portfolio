@@ -1,4 +1,8 @@
 import type {
+  AnalyticsSummary,
+  RecordVisitPayload,
+} from "@/lib/analytics-types";
+import type {
   AdminReply,
   ApiResponse,
   ContactMessage,
@@ -228,4 +232,41 @@ export async function deleteAdminMessage(
   if (!res.ok) {
     throw new Error(await parseError(res, "Failed to delete message"));
   }
+}
+
+export async function recordPageVisit(
+  payload: RecordVisitPayload,
+  baseUrl?: string
+): Promise<void> {
+  const base = getBaseUrl(baseUrl);
+  await fetch(`${base}/api/analytics/visit`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+    keepalive: true,
+  });
+}
+
+export async function fetchAnalyticsSummary(
+  days = 30,
+  baseUrl?: string
+): Promise<AnalyticsSummary> {
+  const base = getBaseUrl(baseUrl);
+  const res = await fetch(
+    `${base}/api/analytics/summary?days=${encodeURIComponent(String(days))}`,
+    {
+      method: "GET",
+      cache: "no-store",
+    }
+  );
+
+  if (!res.ok) {
+    throw new Error(await parseError(res, "Failed to load analytics"));
+  }
+
+  const json = (await res.json()) as ApiResponse<AnalyticsSummary>;
+  if (!json.ok || !json.data) {
+    throw new Error(json.error || "Invalid analytics response.");
+  }
+  return json.data;
 }

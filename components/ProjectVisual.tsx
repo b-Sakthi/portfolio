@@ -10,12 +10,13 @@ interface ProjectVisualProps {
  * Uses pure HTML/SVG + CSS transitions (no extra client JS) and respects prefers-reduced-motion.
  */
 export function ProjectVisual({ slug, title }: ProjectVisualProps) {
+  const usesRealImage = slug === "linlearn" || slug === "cintic";
   return (
     <div
       className="editorial-grid-bg relative min-h-[216px] w-full overflow-hidden rounded-[12px] border border-[#242424] bg-[#0B0B0B] transition-colors duration-300 group-hover:border-[#F5D90A]/45"
       style={{ contentVisibility: "auto", containIntrinsicSize: "216px" }}
-      role="img"
-      aria-label={`${title} technical system preview`}
+      role={usesRealImage ? undefined : "img"}
+      aria-label={usesRealImage ? undefined : `${title} technical system preview`}
     >
       {slug === "linlearn" && (
         <div className="flex h-full flex-col justify-between">
