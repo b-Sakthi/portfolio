@@ -8,12 +8,12 @@ enabled = true
 [vars]
 # Comma-separated allowed origins for CORS and CSRF Origin validation.
 # Remove localhost origins in production if not needed, or keep separated per environment.
-ALLOWED_ORIGINS = "https://sakthib.pages.dev,http://localhost:3000"
+ALLOWED_ORIGINS = "https://sakthib.pages.dev,https://portfolio.sakthib.workers.dev,http://localhost:3000"
 
 [[d1_databases]]
 binding = "DB"
-database_name = "portfolio_contact_db"
-database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+database_name = "databsa"
+database_id = "56060383-8951-4823-9d73-27bc2d082f2a"
 
 # Cloudflare Workers Rate Limiting bindings.
 # Note: Worker rate limits are approximate and enforced locally per Cloudflare edge location.

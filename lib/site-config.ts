@@ -20,18 +20,19 @@ export const siteConfig = {
    */
   resumeUrl: "/resume/",
   /**
-   * Cloudflare Worker base URL (e.g. https://sakthi-portfolio-contact-worker.your-subdomain.workers.dev
-   * or http://127.0.0.1:8787 during local wrangler dev).
+   * Cloudflare Worker base URL for contact submissions and admin inbox APIs.
+   * Defaults to the production Worker (https://portfolio.sakthib.workers.dev);
+   * override via NEXT_PUBLIC_WORKER_URL (e.g. http://127.0.0.1:8787 during local wrangler dev).
    */
   workerUrl: (
     process.env.NEXT_PUBLIC_WORKER_URL ||
     process.env.NEXT_PUBLIC_CONTACT_ENDPOINT ||
-    ""
+    "https://portfolio.sakthib.workers.dev"
   ).replace(/\/+$/, ""),
   contactFormEndpoint: (
     process.env.NEXT_PUBLIC_WORKER_URL ||
     process.env.NEXT_PUBLIC_CONTACT_ENDPOINT ||
-    ""
+    "https://portfolio.sakthib.workers.dev"
   ).replace(/\/+$/, ""),
 } as const;
 

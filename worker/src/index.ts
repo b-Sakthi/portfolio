@@ -73,7 +73,9 @@ function logSecurityEvent(
 }
 
 function getAllowedOrigins(env: WorkerEnv): Set<string> {
-  const raw = env.ALLOWED_ORIGINS || "https://sakthib.pages.dev,http://localhost:3000";
+  const raw =
+    env.ALLOWED_ORIGINS ||
+    "https://sakthib.pages.dev,https://portfolio.sakthib.workers.dev,http://localhost:3000";
   return new Set(
     raw
       .split(",")
