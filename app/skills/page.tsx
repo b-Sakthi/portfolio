@@ -10,6 +10,11 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/skills/",
   },
+  openGraph: {
+    title: `Technical Skills | ${siteConfig.name}`,
+    description: `Programming languages, frontend, backend, cloud/DevOps, and AI/ML tools used by ${siteConfig.name}.`,
+    url: "/skills/",
+  },
 };
 
 export default function SkillsPage() {

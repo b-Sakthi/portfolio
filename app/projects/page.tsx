@@ -10,6 +10,11 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/projects/",
   },
+  openGraph: {
+    title: `Projects | ${siteConfig.name}`,
+    description: `Featured software engineering, cloud, and AI projects by ${siteConfig.name}.`,
+    url: "/projects/",
+  },
 };
 
 export default function ProjectsPage() {

@@ -12,6 +12,11 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/about/",
   },
+  openGraph: {
+    title: `About | ${siteConfig.name}`,
+    description: `About ${siteConfig.name} — B.Tech CSE (Cloud Computing) student and software developer in ${siteConfig.location}.`,
+    url: "/about/",
+  },
 };
 
 export default function AboutPage() {

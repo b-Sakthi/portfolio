@@ -13,6 +13,11 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/experience/",
   },
+  openGraph: {
+    title: `Experience & Credentials | ${siteConfig.name}`,
+    description: `Education, certifications, and project contributions of ${siteConfig.name}.`,
+    url: "/experience/",
+  },
 };
 
 export default function ExperiencePage() {

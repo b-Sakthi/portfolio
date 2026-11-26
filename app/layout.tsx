@@ -53,9 +53,13 @@ export const metadata: Metadata = {
     "Next.js",
     "FastAPI",
     "Python",
+    "TypeScript",
+    "Cloudflare Workers",
+    "Docker",
   ],
   authors: [{ name: siteConfig.name, url: siteConfig.githubUrl }],
   creator: siteConfig.name,
+  publisher: siteConfig.name,
   alternates: {
     canonical: "/",
   },
@@ -66,17 +70,33 @@ export const metadata: Metadata = {
     siteName: `${siteConfig.name} Portfolio`,
     title: `${siteConfig.name} | Software Developer`,
     description:
-      "Software developer interested in full-stack engineering, cloud computing, computer vision, and AI-powered applications.",
+      "Software developer in Bengaluru, India specializing in full-stack engineering, cloud computing, computer vision, and AI-powered applications.",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: `${siteConfig.name} | Software Developer Portfolio`,
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: `${siteConfig.name} | Software Developer`,
     description:
-      "Full-stack engineering, cloud computing, computer vision, and AI-powered applications.",
+      "Software developer in Bengaluru, India specializing in full-stack engineering, cloud computing, computer vision, and AI-powered applications.",
+    images: ["/og-image.png"],
   },
   robots: {
     index: true,
     follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
   },
 };
 

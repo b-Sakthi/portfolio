@@ -15,6 +15,11 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/resume/",
   },
+  openGraph: {
+    title: `Resume | ${siteConfig.name}`,
+    description: `Resume of ${siteConfig.name} — ${siteConfig.role}`,
+    url: "/resume/",
+  },
 };
 
 export default function ResumePage() {
