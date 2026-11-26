@@ -23,7 +23,7 @@ export function AboutSection() {
               <p className="text-base leading-relaxed md:text-lg">
                 I&apos;m a Computer Science undergraduate specializing in{" "}
                 <span className="text-[#F5F5F0]">Cloud Computing</span> at
-                Alliance University, Bengaluru (2023–2027).
+                Alliance University, Bengaluru (2023–2027, CGPA: 7.9/10).
               </p>
               <p className="text-base leading-relaxed md:text-lg">
                 I build full-stack applications, cloud systems, and AI-powered

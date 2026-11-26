@@ -57,7 +57,7 @@ export function Navbar() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 border-b border-[#242424] bg-[#0B0B0B]/92 backdrop-blur-md">
+      <header className="sticky top-0 z-40 border-b border-[#242424] bg-[#0B0B0B] backdrop-blur-md">
         <div className="portfolio-container flex h-20 items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <button

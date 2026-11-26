@@ -1,7 +1,7 @@
 export const siteConfig = {
   name: "Sakthi B",
   shortName: "SAKTHI B",
-  role: "Software Developer | Cloud Computing | AI & Full Stack Engineering",
+  role: "Cloud & DevOps Systems | Applied AI & Distributed Infrastructure",
   location: "Bengaluru, India",
   email: "sakthibalamurugan06@gmail.com",
   phone: "+91 6362163738",

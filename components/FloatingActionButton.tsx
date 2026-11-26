@@ -86,14 +86,20 @@ export function FloatingActionButton() {
         )}
       </AnimatePresence>
 
-      {/* Main Trigger Button */}
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
         aria-expanded={open}
-        aria-label={open ? "Close quick actions menu" : "Open quick actions menu"}
+        aria-label={open ? "Close quick actions and contact menu" : "Quick actions and contact menu"}
+        title={open ? "Close quick actions" : "Quick actions & contact"}
         className="group relative flex h-13 w-13 items-center justify-center rounded-full border border-[#F5D90A]/30 bg-[#141414] text-[#F5D90A] shadow-2xl transition-all duration-200 hover:scale-105 hover:border-[#F5D90A] hover:bg-[#F5D90A] hover:text-[#0B0B0B] focus-visible:outline-2 focus-visible:outline-[#F5D90A] active:scale-95"
       >
+        <span
+          role="tooltip"
+          className="pointer-events-none absolute right-full mr-3 hidden whitespace-nowrap rounded-[6px] border border-[#2A2A2A] bg-[#141414] px-3 py-1.5 text-xs font-medium text-[#F5F5F0] shadow-xl transition-opacity sm:group-hover:block sm:group-focus-visible:block"
+        >
+          {open ? "Close menu" : "Quick actions & contact"}
+        </span>
         <span
           aria-hidden="true"
           className="absolute inset-0 rounded-full bg-[#F5D90A]/10 animate-ping pointer-events-none"
