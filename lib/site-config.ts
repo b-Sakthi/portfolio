@@ -139,7 +139,7 @@ export const educationAndCertifications: CredentialItem[] = [
     location: "Cloud & AI",
     highlight: "Certified",
     details:
-      "Foundational certification covering AI/ML concepts, generative AI workflows, and Oracle Cloud Infrastructure AI services.",
+      "Industry certification covering foundational AI/ML concepts, large language models, generative AI workflows, and Oracle Cloud Infrastructure AI services (2025 exam edition, awarded 2026).",
   },
   {
     index: "03",

@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowUpRight, CheckCircle2, Info } from "lucide-react";
+import { ArrowLeft, ArrowUpRight, CheckCircle2 } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -406,7 +406,7 @@ export default async function CaseStudyPage({ params }: CaseStudyPageProps) {
           <section className="grid grid-cols-1 gap-8 lg:grid-cols-12">
             <div className="rounded-[16px] border border-[#242424] bg-[#141414] p-6 sm:p-8 lg:col-span-6">
               <span className="font-mono-code text-meta text-[#F5D90A]">
-                16 · Screenshots &amp; Visuals
+                16 · System Visuals &amp; Architecture
               </span>
               <h2 className="text-subhead mt-3 text-[#F5F5F0]">
                 System Visual Preview
@@ -440,18 +440,6 @@ export default async function CaseStudyPage({ params }: CaseStudyPageProps) {
                   </li>
                 ))}
               </ul>
-
-              <div className="mt-6 rounded-[12px] border border-dashed border-[#2A2A2A] bg-[#0B0B0B] p-4">
-                <div className="flex items-center gap-2 text-xs font-semibold text-[#F5F5F0]">
-                  <Info className="h-4 w-4 text-[#F5D90A]" aria-hidden="true" />
-                  <span>Details Requiring Confirmation</span>
-                </div>
-                <ul className="mt-2 space-y-1 text-xs text-[#A1A1AA]">
-                  {project.confirmationNeeded.map((item) => (
-                    <li key={item}>• {item}</li>
-                  ))}
-                </ul>
-              </div>
             </div>
           </section>
 

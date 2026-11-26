@@ -128,9 +128,9 @@ export function AnalyticsDashboard() {
     setAuthLoading(true);
     setAuthError("");
     try {
-      const ok = await verifyAdminToken(candidate);
-      if (!ok) {
-        setAuthError("Invalid admin token. Access denied.");
+      const result = await verifyAdminToken(candidate);
+      if (!result.ok) {
+        setAuthError(result.error || "Invalid admin token. Access denied.");
         return;
       }
       setIsAuthenticated(true);

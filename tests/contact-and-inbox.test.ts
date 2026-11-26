@@ -511,6 +511,21 @@ test("14, 15, 16, 17, 18, 20. SQLi, XSS, CORS, CSRF, method violations, and full
     env
   );
   assert.equal(loginRes.status, 200);
+  const loginJson = (await loginRes.json()) as { ok: boolean; sessionToken?: string };
+  assert.equal(loginJson.ok, true);
+  assert.ok(loginJson.sessionToken);
+
+  const bearerListRes = await handleRequest(
+    new Request("https://worker.example/api/admin/messages", {
+      headers: {
+        Authorization: `Bearer ${loginJson.sessionToken}`,
+        Origin: VALID_ORIGIN,
+      },
+    }),
+    env
+  );
+  assert.equal(bearerListRes.status, 200);
+
   const setCookie = loginRes.headers.get("Set-Cookie") || "";
   assert.ok(setCookie.includes("admin_session="));
   assert.ok(setCookie.includes("HttpOnly"));

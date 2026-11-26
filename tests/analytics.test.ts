@@ -257,11 +257,57 @@ test("Invalid or expired session / invalid admin token rejected with 401", async
   assert.equal(badCookieRes.status, 401);
 });
 
-test("Authenticated administrator can access analytics summary", async () => {
+test("Missing ADMIN_TOKEN returns 500 server diagnostic error", async () => {
+  const db = createMockAnalyticsD1();
+  const misconfiguredEnv = {
+    DB: db,
+    ALLOWED_ORIGINS: "https://sakthib.pages.dev",
+  };
+
+  const res = await handleRequest(
+    new Request("https://worker.example/api/admin/auth", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Origin: "https://sakthib.pages.dev",
+      },
+      body: JSON.stringify({ token: "any-token" }),
+    }),
+    misconfiguredEnv
+  );
+
+  assert.equal(res.status, 500);
+  const json = (await res.json()) as { ok: boolean; error: string };
+  assert.equal(json.ok, false);
+  assert.ok(json.error.includes("ADMIN_TOKEN"));
+});
+
+test("Token with accidental whitespace or quotes authenticates successfully", async () => {
   const db = createMockAnalyticsD1();
   const env = createEnv(db);
 
-  // Seed two visits
+  const res = await handleRequest(
+    new Request("https://worker.example/api/admin/auth", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Origin: "https://sakthib.pages.dev",
+      },
+      body: JSON.stringify({ token: '  "super-secret-test-token-123456"  ' }),
+    }),
+    env
+  );
+
+  assert.equal(res.status, 200);
+  const json = (await res.json()) as { ok: boolean; sessionToken?: string };
+  assert.equal(json.ok, true);
+  assert.ok(json.sessionToken);
+});
+
+test("Authenticated administrator can access analytics summary via Cookie, Bearer session, or Bearer admin token", async () => {
+  const db = createMockAnalyticsD1();
+  const env = createEnv(db);
+
   db.visits.push({
     id: "1",
     visitor_id: "visitor-1",
@@ -277,7 +323,6 @@ test("Authenticated administrator can access analytics summary", async () => {
     created_at: new Date().toISOString(),
   });
 
-  // 1. Authenticate via admin auth endpoint
   const authRes = await handleRequest(
     new Request("https://worker.example/api/admin/auth", {
       method: "POST",
@@ -290,12 +335,15 @@ test("Authenticated administrator can access analytics summary", async () => {
     env
   );
   assert.equal(authRes.status, 200);
+  const authJson = (await authRes.json()) as { ok: boolean; sessionToken: string };
+  assert.equal(authJson.ok, true);
+  assert.ok(authJson.sessionToken);
+
   const cookieHeader = authRes.headers.get("Set-Cookie");
   assert.ok(cookieHeader);
   const sessionCookie = cookieHeader.split(";")[0];
 
-  // 2. Request analytics with the valid session cookie
-  const summaryRes = await handleRequest(
+  const cookieRes = await handleRequest(
     new Request("https://worker.example/api/admin/analytics/summary?days=14", {
       method: "GET",
       headers: {
@@ -305,16 +353,48 @@ test("Authenticated administrator can access analytics summary", async () => {
     }),
     env
   );
+  assert.equal(cookieRes.status, 200);
 
-  assert.equal(summaryRes.status, 200);
-  const json = (await summaryRes.json()) as {
+  const bearerSessionRes = await handleRequest(
+    new Request("https://worker.example/api/admin/analytics/summary?days=14", {
+      method: "GET",
+      headers: {
+        Origin: "https://sakthib.pages.dev",
+        Authorization: `Bearer ${authJson.sessionToken}`,
+      },
+    }),
+    env
+  );
+  assert.equal(bearerSessionRes.status, 200);
+  const bearerSessionJson = (await bearerSessionRes.json()) as {
     ok: boolean;
-    data: {
-      totalVisitors: number;
-      totalPageViews: number;
-    };
+    data: { totalVisitors: number; totalPageViews: number };
   };
-  assert.equal(json.ok, true);
-  assert.equal(json.data.totalVisitors, 2);
-  assert.equal(json.data.totalPageViews, 2);
+  assert.equal(bearerSessionJson.ok, true);
+  assert.equal(bearerSessionJson.data.totalVisitors, 2);
+  assert.equal(bearerSessionJson.data.totalPageViews, 2);
+
+  const refreshSessionRes = await handleRequest(
+    new Request("https://worker.example/api/admin/session", {
+      method: "GET",
+      headers: {
+        Origin: "https://sakthib.pages.dev",
+        Authorization: `Bearer ${authJson.sessionToken}`,
+      },
+    }),
+    env
+  );
+  assert.equal(refreshSessionRes.status, 200);
+
+  const directTokenRes = await handleRequest(
+    new Request("https://worker.example/api/admin/analytics/summary?days=14", {
+      method: "GET",
+      headers: {
+        Origin: "https://sakthib.pages.dev",
+        Authorization: "Bearer super-secret-test-token-123456",
+      },
+    }),
+    env
+  );
+  assert.equal(directTokenRes.status, 200);
 });

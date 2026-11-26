@@ -276,13 +276,18 @@ async function isAdminAuthenticated(
     return true;
   }
 
-  // Fallback Bearer token check for non-browser API clients (never used by frontend)
-  const expected = env.ADMIN_TOKEN?.trim();
   const authHeader = request.headers.get("Authorization") || "";
-  if (expected && authHeader.startsWith("Bearer ")) {
+  if (authHeader.startsWith("Bearer ")) {
     const provided = authHeader.slice(7).trim();
-    if (provided && (await constantTimeSecretMatch(provided, expected))) {
-      return true;
+    if (provided) {
+      if (await verifyAdminSessionCookie(provided, env)) {
+        return true;
+      }
+      const rawExpected = env.ADMIN_TOKEN?.trim();
+      const expected = rawExpected?.replace(/^["']|["']$/g, "");
+      if (expected && (await constantTimeSecretMatch(provided, expected))) {
+        return true;
+      }
     }
   }
 
@@ -824,12 +829,32 @@ export async function handleRequest(
       return jsonResponse({ ok: false, error: parsed.error }, parsed.status, cors);
     }
 
-    const token =
+    const rawToken =
       typeof parsed.data.token === "string" ? parsed.data.token.trim() : "";
-    const expected = env.ADMIN_TOKEN?.trim();
+    const token = rawToken.replace(/^["']|["']$/g, "");
+    const rawExpected = env.ADMIN_TOKEN?.trim();
+
+    if (!rawExpected) {
+      logSecurityEvent("admin_auth_misconfigured", {
+        method: request.method,
+        path,
+        status: 500,
+        reason: "ADMIN_TOKEN secret is not configured on the worker environment",
+      });
+      return jsonResponse(
+        {
+          ok: false,
+          error:
+            "Server configuration error: ADMIN_TOKEN secret is not configured.",
+        },
+        500,
+        cors
+      );
+    }
+
+    const expected = rawExpected.replace(/^["']|["']$/g, "");
 
     if (
-      !expected ||
       !token ||
       !(await constantTimeSecretMatch(token, expected))
     ) {
@@ -851,9 +876,14 @@ export async function handleRequest(
       );
     }
 
-    return jsonResponse({ ok: true }, 200, cors, {
-      "Set-Cookie": buildSessionCookieHeader(url, sessionToken, SESSION_TTL_SECONDS),
-    });
+    return jsonResponse(
+      { ok: true, sessionToken, expiresIn: SESSION_TTL_SECONDS },
+      200,
+      cors,
+      {
+        "Set-Cookie": buildSessionCookieHeader(url, sessionToken, SESSION_TTL_SECONDS),
+      }
+    );
   }
 
   // Admin Logout -> clears HttpOnly cookie

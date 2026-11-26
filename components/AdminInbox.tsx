@@ -142,9 +142,9 @@ export function AdminInbox() {
     setAuthLoading(true);
     setAuthError("");
     try {
-      const valid = await verifyAdminToken(candidate);
-      if (!valid) {
-        setAuthError("Invalid credentials.");
+      const result = await verifyAdminToken(candidate);
+      if (!result.ok) {
+        setAuthError(result.error || "Invalid credentials.");
         return;
       }
       setTokenInput("");

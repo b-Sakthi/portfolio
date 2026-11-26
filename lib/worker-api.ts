@@ -12,6 +12,39 @@ import type {
 } from "@/lib/contact-types";
 import { siteConfig } from "@/lib/site-config";
 
+const ADMIN_SESSION_STORAGE_KEY = "admin_session_token";
+
+export function getAdminSessionToken(): string | null {
+  if (typeof window === "undefined") return null;
+  try {
+    return sessionStorage.getItem(ADMIN_SESSION_STORAGE_KEY);
+  } catch {
+    return null;
+  }
+}
+
+export function setAdminSessionToken(token: string | null): void {
+  if (typeof window === "undefined") return;
+  try {
+    if (token) {
+      sessionStorage.setItem(ADMIN_SESSION_STORAGE_KEY, token);
+    } else {
+      sessionStorage.removeItem(ADMIN_SESSION_STORAGE_KEY);
+    }
+  } catch {
+    // Ignore storage restrictions
+  }
+}
+
+function getAuthHeaders(extraHeaders?: Record<string, string>): Record<string, string> {
+  const headers: Record<string, string> = { ...(extraHeaders ?? {}) };
+  const token = getAdminSessionToken();
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+  return headers;
+}
+
 function getBaseUrl(overrideBaseUrl?: string): string {
   const base = (overrideBaseUrl ?? siteConfig.workerUrl).replace(/\/+$/, "");
   if (!base) {
@@ -64,31 +97,57 @@ export async function submitContactForm(
 export async function verifyAdminToken(
   token: string,
   baseUrl?: string
-): Promise<boolean> {
+): Promise<{ ok: boolean; error?: string }> {
   const base = getBaseUrl(baseUrl);
+  const normalized = token.trim();
   const res = await fetch(`${base}/api/admin/auth`, {
     method: "POST",
     credentials: "include",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ token }),
+    body: JSON.stringify({ token: normalized }),
   });
 
   if (res.status === 401) {
-    return false;
+    setAdminSessionToken(null);
+    return { ok: false, error: "Invalid credentials." };
   }
+
   if (!res.ok) {
-    throw new Error(await parseError(res, "Authentication failed"));
+    setAdminSessionToken(null);
+    const errText = await parseError(res, "Authentication failed");
+    return { ok: false, error: errText };
   }
-  const json = (await res.json()) as { ok?: boolean };
-  return Boolean(json.ok);
+
+  const json = (await res.json()) as {
+    ok?: boolean;
+    sessionToken?: string;
+    error?: string;
+  };
+
+  if (json.ok) {
+    if (json.sessionToken) {
+      setAdminSessionToken(json.sessionToken);
+    }
+    return { ok: true };
+  }
+
+  setAdminSessionToken(null);
+  return { ok: false, error: json.error || "Authentication failed." };
 }
 
 export async function logoutAdmin(baseUrl?: string): Promise<void> {
   const base = getBaseUrl(baseUrl);
-  await fetch(`${base}/api/admin/logout`, {
-    method: "POST",
-    credentials: "include",
-  });
+  const headers = getAuthHeaders();
+  setAdminSessionToken(null);
+  try {
+    await fetch(`${base}/api/admin/logout`, {
+      method: "POST",
+      credentials: "include",
+      headers,
+    });
+  } catch {
+    // Ignore network failure during logout
+  }
 }
 
 export async function fetchAdminMessages(
@@ -98,9 +157,11 @@ export async function fetchAdminMessages(
   const res = await fetch(`${base}/api/admin/messages`, {
     method: "GET",
     credentials: "include",
+    headers: getAuthHeaders(),
   });
 
   if (res.status === 401) {
+    setAdminSessionToken(null);
     throw new Error("Unauthorized");
   }
   if (!res.ok) {
@@ -124,10 +185,12 @@ export async function fetchAdminMessageDetail(
     {
       method: "GET",
       credentials: "include",
+      headers: getAuthHeaders(),
     }
   );
 
   if (res.status === 401) {
+    setAdminSessionToken(null);
     throw new Error("Unauthorized");
   }
   if (!res.ok) {
@@ -153,14 +216,15 @@ export async function createAdminReply(
     {
       method: "POST",
       credentials: "include",
-      headers: {
+      headers: getAuthHeaders({
         "Content-Type": "application/json",
-      },
+      }),
       body: JSON.stringify({ body, clientReplyId }),
     }
   );
 
   if (res.status === 401) {
+    setAdminSessionToken(null);
     throw new Error("Unauthorized");
   }
   if (!res.ok) {
@@ -188,14 +252,15 @@ export async function updateMessageStatus(
     {
       method: "PATCH",
       credentials: "include",
-      headers: {
+      headers: getAuthHeaders({
         "Content-Type": "application/json",
-      },
+      }),
       body: JSON.stringify({ status }),
     }
   );
 
   if (res.status === 401) {
+    setAdminSessionToken(null);
     throw new Error("Unauthorized");
   }
   if (!res.ok) {
@@ -223,10 +288,12 @@ export async function deleteAdminMessage(
     {
       method: "DELETE",
       credentials: "include",
+      headers: getAuthHeaders(),
     }
   );
 
   if (res.status === 401) {
+    setAdminSessionToken(null);
     throw new Error("Unauthorized");
   }
   if (!res.ok) {
@@ -257,11 +324,13 @@ export async function fetchAnalyticsSummary(
     {
       method: "GET",
       credentials: "include",
+      headers: getAuthHeaders(),
       cache: "no-store",
     }
   );
 
   if (res.status === 401) {
+    setAdminSessionToken(null);
     throw new Error("Unauthorized");
   }
   if (!res.ok) {

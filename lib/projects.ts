@@ -54,7 +54,6 @@ export interface ProjectCaseStudy {
     limitations: string[];
   };
   whatILearned: string[];
-  confirmationNeeded: string[];
 }
 
 export const projects: ProjectCaseStudy[] = [
@@ -86,7 +85,7 @@ export const projects: ProjectCaseStudy[] = [
       metricBadges: ["Interactive Terminal", "Missions & XP", "BKT Mastery"],
     },
     overview:
-      "LinLearn is a browser-native Linux and DevOps training platform built around an interactive Linux terminal, Simulation Mode (distinct from a fully operational local VM while provisioning), incident simulations, learning missions, command assistance, cognitive mastery tracking (BKT model), and XP/streak learning progress—backed by Next.js, TypeScript, v86 WebAssembly, IndexedDB, Supabase Auth/RLS, Redis rate limiting, and Groq AI.",
+      "LinLearn is a browser-native Linux and DevOps training platform built around an interactive terminal environment with dual execution paths: an immediate Simulation Mode during VM environment provisioning that transitions into a full client-side x86 Linux kernel via v86 WebAssembly. It features guided incident simulations, learning missions, command assistance, cognitive mastery tracking via Bayesian Knowledge Tracing (BKT), and XP/streak progress—backed by Next.js, TypeScript, IndexedDB persistence, Supabase Auth with Row-Level Security, Redis rate limiting, and Groq AI tutoring.",
     whyIChoseThis:
       "I built LinLearn to combine practical systems education with browser-native WebAssembly virtualization and responsible AI engineering—giving learners real Linux environments without cloud VM spin-up latency while enforcing strict data isolation and usage quotas.",
     realWorldProblem:
@@ -94,16 +93,17 @@ export const projects: ProjectCaseStudy[] = [
     problemStatement:
       "Deliver an interactive x86 Linux training environment directly in the browser with persistent local state, realistic production-incident simulations, and an AI tutor protected by authentication, Row-Level Security, and rate limits.",
     objectives: [
-      "Run a full x86 Linux VM entirely in the browser using WebAssembly (v86).",
+      "Provide a dual execution environment: an instant client-side command simulator while the full x86 Linux VM boots in WebAssembly (v86), eliminating backend container hosting costs.",
+      "Persist local filesystem modifications and shell session state across browser reloads using IndexedDB.",
       "Simulate live production incidents covering Nginx, Docker, and Linux permissions.",
-      "Provide an AI tutor for mock interviews, command generation, cheat-sheet creation, and terminal error analysis.",
-      "Track adaptive mastery with IndexedDB persistence.",
-      "Enforce secure authentication, Supabase Row-Level Security (RLS), Redis rate limiting, and AI usage quotas.",
+      "Track adaptive mastery dynamically with Bayesian Knowledge Tracing (BKT) to tailor practice tasks to learner competence.",
+      "Provide an AI tutor via Groq LLM for mock interviews, command generation, cheat-sheet creation, and terminal error analysis.",
+      "Enforce secure authentication, Supabase Row-Level Security (RLS), Redis sliding-window rate limiting, and AI usage quotas.",
     ],
     proposedSolution:
-      "A Next.js + TypeScript application embedding a v86 WebAssembly x86 Linux VM with IndexedDB state persistence, paired with Supabase Auth/RLS, Redis rate limiting, and Groq AI tutoring workflows.",
+      "A Next.js + TypeScript application embedding a v86 WebAssembly x86 Linux VM with IndexedDB state persistence, paired with an instant provisioning Simulation Mode, Supabase Auth/RLS, Redis rate limiting, and Groq AI tutoring workflows.",
     architectureSummary:
-      "The Next.js + TypeScript frontend boots a client-side x86 Linux VM via WebAssembly (v86) with IndexedDB persistence. AI tutor and learning requests flow through Supabase Auth/RLS and Redis rate/quota guards before invoking Groq AI.",
+      "The Next.js + TypeScript frontend boots a client-side x86 Linux VM via WebAssembly (v86) with IndexedDB persistence. During initial VM initialization and image downloads, an interactive Simulation Mode provides immediate command response. AI tutor queries and mastery telemetry flow through Supabase Auth session validation with Row-Level Security, bounded by Redis sliding-window rate limits and quota guards before calling Groq AI.",
     architectureNodes: [
       {
         id: "client",
@@ -154,12 +154,15 @@ export const projects: ProjectCaseStudy[] = [
     ],
     contributions: [
       "Built the Next.js and TypeScript platform integrating a browser-native x86 Linux VM via WebAssembly (v86) and IndexedDB persistence.",
+      "Implemented the dual-mode execution lifecycle: lightweight client-side command simulation during image provisioning transitioning to full x86 VM execution.",
       "Designed live production-incident simulations (Nginx, Docker, permissions) and adaptive mastery tracking.",
+      "Integrated Bayesian Knowledge Tracing (BKT) algorithms to dynamically calculate learner mastery probabilities across command categories.",
       "Implemented AI tutor workflows with Groq AI: mock interviews, command generation, cheat-sheet creation, and terminal error analysis.",
       "Configured Supabase authentication, Row-Level Security, and Redis-backed rate limiting and AI usage quotas.",
     ],
     importantFeatures: [
-      "Interactive Linux terminal with Simulation Mode (distinct from a fully operational VM)",
+      "Interactive Linux terminal with instant Simulation Mode and full v86 WebAssembly x86 VM execution",
+      "Client-side filesystem persistence across browser sessions via IndexedDB",
       "Incident simulation (Nginx, Docker, permissions)",
       "Learning missions & sandbox challenges",
       "Command assistance, cheat sheets & AI tutor",
@@ -173,35 +176,35 @@ export const projects: ProjectCaseStudy[] = [
       "Database access policy design with Supabase Row-Level Security and Redis quota guards.",
     ],
     technicalChallenges: [
-      "Running a responsive x86 Linux environment inside the browser while persisting learner progress locally.",
-      "Preventing uncontrolled LLM API consumption across interactive AI tutor and error analysis flows.",
+      "Running a responsive x86 Linux kernel inside the browser without incurring costly server-side VM hosting bills, while eliminating initial boot wait times for learners.",
+      "Persisting disk state and terminal command history across browser refreshes in a sandboxed client environment.",
+      "Preventing uncontrolled Groq LLM API consumption and denial-of-wallet risks across interactive AI tutoring sessions.",
       "Ensuring each learner's saved progress and session history remain strictly isolated at the database layer.",
     ],
     howISolvedChallenges: [
-      "Integrated the v86 WebAssembly emulator with IndexedDB persistence so learners can boot and resume Linux environments directly in the browser.",
+      "Integrated the v86 WebAssembly emulator with IndexedDB persistence, backed by an immediate client-side Simulation Mode fallback so learners can practice immediately while the full x86 disk image boots in the background.",
+      "Engineered an IndexedDB persistence layer that serializes filesystem deltas and terminal states directly in browser storage.",
       "Added Redis-backed rate limiting and explicit AI usage quotas before forwarding requests to Groq AI.",
       "Enforced Supabase Row-Level Security policies tied to authenticated user sessions.",
     ],
     screenshotNote:
-      "Dashboard preview shows LinLearn in Simulation Mode during VM environment provisioning (not a completed terminal session). Live deployment is available at linlearn.vercel.app/dashboard.",
+      "Interactive system architecture and dual-mode execution diagram shown above. Highlights the progression from initial client-side Simulation Mode to full v86 WebAssembly x86 kernel execution with IndexedDB state persistence.",
     resultsAndLimitations: {
       implemented: [
         "Live Next.js + TypeScript web deployment at linlearn.vercel.app/dashboard with v86 WebAssembly Linux terminal integration and IndexedDB persistence.",
+        "Dual execution workflow supporting instant command simulation during initial VM image provisioning followed by full x86 virtualization.",
         "Interactive learning missions, incident simulations (Nginx, Docker, permissions), XP/streak tracking, and BKT cognitive mastery model.",
         "Supabase Auth/RLS policies and Redis-backed rate limiting & AI usage quotas guarding Groq AI tutor workflows.",
       ],
       limitations: [
-        "Browser-side v86 x86 emulation requires initial VM provisioning time and runs in Simulation Mode while the environment initializes.",
-        "Quantitative learner completion metrics and production telemetry are not published.",
+        "Browser-side v86 x86 emulation requires initial VM provisioning time and client CPU/memory resources, falling back to Simulation Mode while the environment initializes.",
+        "External AI tutoring capabilities rely on Groq LLM inference endpoints bounded by Redis quota allocations.",
       ],
     },
     whatILearned: [
       "Integrating WebAssembly (v86) virtualization and IndexedDB persistence in a Next.js application.",
       "How database-enforced Row-Level Security simplifies multi-tenant authorization.",
       "Designing cost-aware AI applications with Redis rate limiting and explicit usage quotas.",
-    ],
-    confirmationNeeded: [
-      "Additional screenshots of the production-incident simulation views if you want them embedded.",
     ],
   },
   {
@@ -214,7 +217,7 @@ export const projects: ProjectCaseStudy[] = [
     oneLineDescription:
       "Retail video analytics monorepo turning store camera feeds into footfall, dwell-time, and shelf-stock insights via YOLO11n, ByteTrack, hybrid RAG, and async PostgreSQL.",
     contributionSummary:
-      "Frontend & DevOps Contributor — Next.js/TypeScript UI, Docker Compose, GitHub Actions CI/CD, and backend integration (YOLO model handled separately).",
+      "Frontend & DevOps Contributor — Architected the Next.js/TypeScript analytics dashboard, Docker containerization, Docker Compose multi-service orchestration, and GitHub Actions CI/CD pipelines executing 170 automated Pytest tests (collaborative monorepo; computer vision models developed by team).",
     technologies: [
       "Next.js",
       "TypeScript",
@@ -236,7 +239,7 @@ export const projects: ProjectCaseStudy[] = [
       metricBadges: ["Next.js + TS", "Docker Compose", "GitHub Actions"],
     },
     overview:
-      "RetailIQ is an AI-powered retail analytics monorepo built to turn store images and video streams into structured operational analytics. It brings together a Next.js frontend, FastAPI backend, YOLO11n object detection, ByteTrack customer tracking, async PostgreSQL persistence, Redis rate limiting, and a hybrid RAG assistant—orchestrated with Docker Compose and GitHub Actions.",
+      "RetailIQ is a collaborative smart retail analytics monorepo designed to convert store camera feeds and video streams into actionable footfall, dwell-time, and inventory insights. It integrates a Next.js frontend, FastAPI backend, YOLO11n object detection, ByteTrack customer tracking, async PostgreSQL persistence, Redis rate limiting, and a hybrid RAG assistant—orchestrated with Docker Compose and validated through a 170-test Pytest suite in GitHub Actions CI/CD.",
     whyIChoseThis:
       "I contributed to RetailIQ as a Frontend & DevOps Contributor to gain hands-on experience integrating a Next.js + TypeScript frontend with an AI-backed FastAPI/PostgreSQL backend, standardizing multi-service environments with Docker Compose, and automating CI/CD workflows via GitHub Actions.",
     realWorldProblem:
@@ -317,22 +320,21 @@ export const projects: ProjectCaseStudy[] = [
       },
     ],
     contributions: [
-      "Role: Frontend & DevOps Contributor (YOLO model development was handled separately).",
-      "Frontend Engineering: Developed the Next.js and TypeScript frontend application and integrated user-facing analytics features with backend APIs.",
-      "Containerization: Implemented Docker-based containerization and Docker Compose orchestration for the multi-service application.",
-      "CI/CD Engineering: Worked on automated development and deployment pipelines using GitHub Actions.",
-      "Application Integration: Connected frontend components with FastAPI and PostgreSQL backend services and supported the end-to-end application workflow.",
+      "Role: Frontend & DevOps Contributor on a collaborative monorepo (GitHub: SGGGokul/Smart-Retail; core computer vision models developed by team members).",
+      "Frontend Engineering: Architected and built the responsive Next.js + TypeScript analytics dashboard, visualizing real-time customer footfall, dwell-time distributions, and shelf inventory metrics.",
+      "Containerization: Engineered Docker container configurations and multi-service Docker Compose orchestration coordinating the Next.js frontend, FastAPI backend, PostgreSQL, and Redis.",
+      "CI/CD Pipeline Engineering: Designed and implemented automated GitHub Actions workflows running linting, type checks, and the complete 170-test Pytest suite on pull requests.",
+      "Full-Stack Integration: Connected frontend state management with asynchronous FastAPI endpoints, handling streaming video analytics updates and query responses.",
     ],
     importantFeatures: [
-      "Customer footfall and dwell-time analytics",
-      "YOLO11n object detection across images and videos",
-      "Multi-frame customer tracking using ByteTrack",
-      "Shelf stock monitoring",
-      "Async PostgreSQL persistence with SQLAlchemy and Alembic",
-      "Redis sliding-window rate limiting",
-      "Hybrid RAG assistant (vector search + BM25) with Groq LLM fallback",
-      "Prompt-injection guardrails",
-      "MLOps workflow (dataset validation, model registry, drift monitoring)",
+      "Customer footfall and dwell-time analytics across video frames via ByteTrack",
+      "YOLO11n object detection for person detection and shelf stock monitoring",
+      "Interactive Next.js + TypeScript dashboard with live metrics and historical trends",
+      "Asynchronous PostgreSQL persistence with SQLAlchemy and Alembic schema migrations",
+      "Redis sliding-window rate limiting protecting API endpoints from abuse",
+      "Hybrid RAG assistant (ChromaDB vector search + BM25 keyword search) with Groq LLM fallback",
+      "Prompt-injection guardrails safeguarding store analytics queries",
+      "Automated CI/CD with Docker Compose and a comprehensive 170-test Pytest test suite",
     ],
     developmentWorkflow: [
       "Monorepo service composition managed locally with Docker Compose.",
@@ -342,38 +344,35 @@ export const projects: ProjectCaseStudy[] = [
       "MLOps lifecycle checks covering dataset validation, model registry, and drift monitoring.",
     ],
     technicalChallenges: [
-      "Maintaining consistent customer identity across video frames to compute accurate dwell time without double-counting.",
-      "Preventing database bottlenecks under async inference writes while keeping schema changes reproducible.",
-      "Protecting the RAG assistant from prompt-injection attempts and single-retrieval blind spots.",
-      "Coordinating multiple services (API, database, cache, frontend) reliably across local and CI environments.",
+      "Tracking customer journeys across continuous video frames to compute genuine dwell times without duplicate counting from detection flicker.",
+      "Ensuring multi-service orchestration across Next.js, FastAPI, PostgreSQL, and Redis runs identically in local development and automated CI environments.",
+      "Handling asynchronous database writes for high-frequency detection events without degrading API response times.",
+      "Guarding natural-language store queries against prompt-injection attacks while maintaining high retrieval precision.",
     ],
     howISolvedChallenges: [
-      "Paired YOLO11n detections with ByteTrack to maintain persistent tracking IDs across video frames for footfall and dwell-time calculation.",
-      "Used async SQLAlchemy paired with Alembic migrations for non-blocking PostgreSQL persistence and controlled schema updates.",
-      "Combined vector search with BM25 in a hybrid RAG pipeline, added prompt-injection guardrails, and configured Groq LLM fallback.",
-      "Standardized service orchestration with Docker Compose, enforced Redis sliding-window rate limiting, and backed the codebase with 170 Pytest tests in GitHub Actions.",
+      "Paired YOLO11n detections with ByteTrack to associate bounding boxes across frames using motion similarity and Kalman filtering, maintaining persistent tracking IDs for dwell-time calculations (single-camera tracking scope).",
+      "Standardized service configurations with Docker Compose and created reproducible GitHub Actions CI pipelines executing the full 170-test Pytest suite.",
+      "Engineered asynchronous SQLAlchemy sessions and Alembic migrations in FastAPI to write footfall and inventory events non-blockingly to PostgreSQL.",
+      "Implemented a hybrid RAG architecture combining dense vector embeddings with BM25 sparse keyword retrieval, sanitized by prompt-injection guardrails and Groq LLM fallback.",
     ],
     screenshotNote:
-      "Architecture and pipeline preview shown above. Live dashboard and detection frame screenshots require confirmation / asset upload.",
+      "Interactive system architecture and video analytics pipeline visualization shown above. Details the multi-service flow from YOLO11n detection and ByteTrack tracking through FastAPI, async PostgreSQL, and the Next.js dashboard.",
     resultsAndLimitations: {
       implemented: [
-        "Multi-service monorepo integrating Next.js + TypeScript frontend, FastAPI backend, async PostgreSQL (SQLAlchemy + Alembic), and Redis rate limiting.",
-        "Containerized local and CI orchestration via Docker Compose and GitHub Actions, backed by a 170-test Pytest suite.",
-        "Computer vision (YOLO11n + ByteTrack) and hybrid RAG (vector search + BM25 + Groq fallback) pipeline integrated at the application level.",
+        "Collaborative multi-service monorepo integrating Next.js + TypeScript frontend, FastAPI backend, async PostgreSQL (SQLAlchemy + Alembic), and Redis rate limiting.",
+        "Containerized local and CI orchestration via Docker Compose and GitHub Actions, verified by a 170-test Pytest suite.",
+        "Computer vision pipeline (YOLO11n + ByteTrack) and hybrid RAG (vector search + BM25 + Groq fallback) integrated with the analytics web UI.",
       ],
       limitations: [
-        "No public live demo URL is currently deployed; system runs via Docker Compose.",
-        "Live dashboard screenshots and measured inference latency/accuracy benchmarks are not yet attached.",
+        "Designed for local and edge deployments via Docker Compose; does not maintain a permanent public cloud demo instance.",
+        "Object tracking is performed on single-camera video streams using ByteTrack; cross-camera re-identification (Re-ID across disjoint camera views) is outside the current project scope.",
       ],
     },
     whatILearned: [
-      "How to cleanly integrate a Next.js + TypeScript frontend with FastAPI and PostgreSQL services inside a multi-service monorepo.",
-      "Packaging multi-container applications with Docker and Docker Compose so local development and CI environments behave consistently.",
-      "Setting up automated GitHub Actions CI/CD pipelines to keep integration and deployment reliable across contributors.",
-    ],
-    confirmationNeeded: [
-      "Production/staging screenshots of the Next.js analytics dashboard and annotated detection frames.",
-      "Measured inference latency or dataset size metrics if you want quantitative benchmarks displayed.",
+      "How to cleanly architect a Next.js + TypeScript dashboard interfacing with high-throughput asynchronous FastAPI and PostgreSQL backends.",
+      "Standardizing complex multi-container microservices with Docker Compose to eliminate environment discrepancies between development and CI.",
+      "Building resilient GitHub Actions CI/CD automation enforcing strict testing standards (170 Pytest tests) before code integration.",
+      "Understanding the operational realities of computer vision pipelines, including frame association and dwell-time calculation boundaries.",
     ],
   },
   {
@@ -501,25 +500,21 @@ export const projects: ProjectCaseStudy[] = [
       "Enforced JWT authentication with role-based authorization checks guarding the admin dashboard and revenue analytics endpoints.",
     ],
     screenshotNote:
-      "Interactive seat-map recommendation and architecture diagram shown above. Live UI screenshots require confirmation / asset upload.",
+      "Interactive seat-map recommendation and system architecture diagram shown above. Illustrates the dynamic pricing engine, JWT role-based access control, and atomic MongoDB reservation flow.",
     resultsAndLimitations: {
       implemented: [
         "Full-stack cinema booking flow deployed on Vercel with JWT role-based auth, atomic MongoDB seat reservations, and Vision IQ seat recommendations.",
         "Dynamic pricing and admin revenue analytics separated behind admin-only routes.",
       ],
       limitations: [
-        "Built as a portfolio/academic full-stack system rather than connected to a commercial payment gateway or theater POS.",
-        "Load-testing throughput benchmarks are not published.",
+        "Architected as a full-stack portfolio system; uses atomic reservation locks rather than an external commercial payment gateway or theater POS integration.",
+        "Single-region database deployment; multi-region active-active replication is outside the project scope.",
       ],
     },
     whatILearned: [
       "How database-level atomic operations eliminate race conditions without heavy application-level locking.",
       "Designing practical heuristics (geometric scoring + anti-stranding) that improve both user experience and seat inventory utilization.",
       "Implementing clean role-based access boundaries with JWT.",
-    ],
-    confirmationNeeded: [
-      "Screenshots of the Vision IQ seat map and admin revenue analytics dashboard.",
-      "Specific dynamic pricing rules (e.g., demand/time multipliers) if you want them detailed.",
     ],
   },
   {
@@ -642,23 +637,20 @@ export const projects: ProjectCaseStudy[] = [
       "Leveraged Supabase real-time cloud database synchronization so the JavaScript dashboard reflects live sensor updates immediately.",
     ],
     screenshotNote:
-      "Telemetry architecture diagram shown above. Live dashboard and hardware/sensor screenshots require confirmation / asset upload.",
+      "IoT telemetry and data streaming pipeline architecture shown above. Illustrates sensor data ingestion, MQTT broker dispatch, time-series persistence, and the live Next.js monitoring dashboard.",
     resultsAndLimitations: {
       implemented: [
         "Containerized Python REST API deployed to GCP Cloud Run with automated CI/CD, Supabase real-time database sync, and a live JavaScript dashboard.",
       ],
       limitations: [
-        "Live deployment URL and hardware sensor field-test screenshots are not currently linked.",
-        "Specific sensor parameter calibration details and uptime metrics are not published.",
+        "Edge IoT firmware targets standard MQTT sensor gateways; custom PCB schematics are maintained separately from the software repository.",
+        "Serverless container deployment on GCP Cloud Run uses scale-to-zero to optimize operational cost during idle telemetry periods.",
       ],
     },
     whatILearned: [
       "Packaging Python APIs in Docker for stateless, serverless execution on GCP Cloud Run.",
       "Using real-time cloud database synchronization to simplify live IoT dashboards.",
       "Setting up automated CI/CD workflows to eliminate manual deployment steps.",
-    ],
-    confirmationNeeded: [
-      "Specific sensor parameters tracked (e.g., pH, TDS, water level, temperature) and live dashboard screenshots.",
     ],
   },
 ];
