@@ -6,6 +6,9 @@ import { Navbar } from "@/components/Navbar";
 export const metadata: Metadata = {
   title: "Admin Inbox",
   description: "Private admin inbox for managing portfolio contact messages.",
+  alternates: {
+    canonical: "/admin/",
+  },
   robots: {
     index: false,
     follow: false,

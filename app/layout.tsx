@@ -3,6 +3,7 @@ import { Inter, JetBrains_Mono, Space_Grotesk } from "next/font/google";
 import { AnalyticsTracker } from "@/components/AnalyticsTracker";
 import { FloatingActionButton } from "@/components/FloatingActionButton";
 import { MotionProvider } from "@/components/MotionProvider";
+import { getPersonAndWebSiteJsonLd } from "@/lib/jsonld";
 import { siteConfig } from "@/lib/site-config";
 import "./globals.css";
 
@@ -37,28 +38,30 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.siteUrl),
   title: {
-    default: `${siteConfig.name} | Cloud & DevOps Systems`,
+    default: `${siteConfig.name} | Software Developer · Cloud Computing & Full Stack Systems`,
     template: `%s | ${siteConfig.name}`,
   },
   description:
-    "Portfolio of Sakthi B — Cloud & DevOps engineer and final-year CSE student in Bengaluru building reliable cloud infrastructure, CI/CD pipelines, and applied AI systems.",
+    "Portfolio of Sakthi B — Software Developer specializing in Cloud Computing, Backend & Full Stack Development, and distributed systems in Bengaluru. Discover production projects, technical skills, and case studies.",
   keywords: [
     "Sakthi B",
+    "Software Developer",
+    "Backend Developer",
     "Cloud Computing",
+    "Full Stack Development",
+    "Java Developer",
+    "Software Engineering Projects",
     "DevOps",
     "CI/CD",
     "Docker",
-    "Azure",
-    "GitHub Actions",
-    "LinLearn",
-    "RetailIQ",
-    "Applied AI",
-    "Bengaluru",
+    "Kubernetes",
     "FastAPI",
-    "Python",
     "Next.js",
     "TypeScript",
-    "Cloudflare Workers",
+    "Python",
+    "LinLearn",
+    "RetailIQ",
+    "Bengaluru",
   ],
   authors: [{ name: siteConfig.name, url: siteConfig.githubUrl }],
   creator: siteConfig.name,
@@ -71,23 +74,23 @@ export const metadata: Metadata = {
     locale: "en_IN",
     url: "/",
     siteName: `${siteConfig.name} Portfolio`,
-    title: `${siteConfig.name} | Cloud & DevOps Systems`,
+    title: `${siteConfig.name} | Software Developer · Cloud Computing & Full Stack Systems`,
     description:
-      "Cloud & DevOps engineer building resilient cloud infrastructure, CI/CD automation, and applied AI systems.",
+      "Software Developer specializing in Cloud Computing, Backend & Full Stack Development, and distributed systems. Explore featured software engineering projects.",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: `${siteConfig.name} | Cloud & DevOps Systems Portfolio`,
+        alt: `${siteConfig.name} — Software Developer Portfolio`,
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: `${siteConfig.name} | Cloud & DevOps Systems`,
+    title: `${siteConfig.name} | Software Developer · Cloud Computing & Full Stack Systems`,
     description:
-      "Cloud & DevOps engineer building resilient cloud infrastructure, CI/CD automation, and applied AI systems.",
+      "Software Developer specializing in Cloud Computing, Backend & Full Stack Development, and distributed systems. Explore featured software engineering projects.",
     images: ["/og-image.png"],
   },
   robots: {
@@ -101,6 +104,9 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
+  verification: {
+    google: "google233abb650f794463",
+  },
 };
 
 export default function RootLayout({
@@ -108,11 +114,27 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const { person, webSite } = getPersonAndWebSiteJsonLd();
+
   return (
     <html
       lang="en"
       className={`${spaceGrotesk.variable} ${inter.variable} ${jetbrainsMono.variable}`}
     >
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(person),
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(webSite),
+          }}
+        />
+      </head>
       <body className="min-h-screen bg-[#0B0B0B] text-[#F5F5F0] antialiased selection:bg-[#F5D90A] selection:text-[#0B0B0B]">
         <a href="#main-content" className="skip-link visually-hidden">
           Skip to main content

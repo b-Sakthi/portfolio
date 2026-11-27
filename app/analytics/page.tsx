@@ -7,6 +7,9 @@ export const metadata: Metadata = {
   title: "Visitor Analytics",
   description:
     "Private visitor and page view analytics for Sakthi B's portfolio.",
+  alternates: {
+    canonical: "/analytics/",
+  },
   robots: {
     index: false,
     follow: false,

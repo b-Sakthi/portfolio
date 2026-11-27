@@ -1,0 +1,6 @@
+# Ensure canonical clean routing and correct MIME types for Cloudflare Pages
+/admin/*   /admin/   200
+/analytics/*   /analytics/   200
+/google233abb650f794463.html   /google233abb650f794463.html   200
+/googlef5be88ec723cb051.html   /googlef5be88ec723cb051.html   200
+

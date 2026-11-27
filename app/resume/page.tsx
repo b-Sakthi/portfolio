@@ -10,15 +10,23 @@ import {
 } from "@/lib/site-config";
 
 export const metadata: Metadata = {
-  title: "Resume",
-  description: `Resume of ${siteConfig.name} — ${siteConfig.role}`,
+  title: "Resume | Software Developer & Cloud Computing",
+  description: `Technical resume of ${siteConfig.name} — Software Developer with expertise in Backend Development, Cloud Computing, Java, Python, and Full Stack systems.`,
   alternates: {
     canonical: "/resume/",
   },
   openGraph: {
-    title: `Resume | ${siteConfig.name}`,
-    description: `Resume of ${siteConfig.name} — ${siteConfig.role}`,
+    title: `Resume | ${siteConfig.name} — Software Developer`,
+    description: `Technical resume of ${siteConfig.name} — Software Developer with expertise in Backend Development, Cloud Computing, Java, Python, and Full Stack systems.`,
     url: "/resume/",
+    type: "profile",
+    images: ["/og-image.png"],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `Resume | ${siteConfig.name} — Software Developer`,
+    description: `Explore the software engineering qualifications, credentials, and projects of ${siteConfig.name}.`,
+    images: ["/og-image.png"],
   },
 };
 

@@ -15,9 +15,9 @@ export function ExperienceSection() {
               <div className="text-meta font-medium text-[#F5D90A]">
                 <span>Credentials</span>
               </div>
-              <h2 className="text-section mt-4 text-[#F5F5F0]">
+              <h1 className="text-section mt-4 text-[#F5F5F0]">
                 Education &amp; Certifications
-              </h2>
+              </h1>
             </div>
 
             <p className="max-w-md text-sm leading-relaxed text-[#A1A1AA] md:text-base">

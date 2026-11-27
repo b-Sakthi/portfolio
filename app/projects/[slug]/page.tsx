@@ -8,6 +8,7 @@ import { Footer } from "@/components/Footer";
 import { Navbar } from "@/components/Navbar";
 import { ProjectVisual } from "@/components/ProjectVisual";
 import { getProjectBySlug, projects } from "@/lib/projects";
+import { getProjectJsonLd } from "@/lib/jsonld";
 import { siteConfig } from "@/lib/site-config";
 
 interface CaseStudyPageProps {
@@ -32,17 +33,42 @@ export async function generateMetadata({
     };
   }
 
+  const title = `${project.name} Case Study | ${project.tagline}`;
+  const description = `${project.oneLineDescription} Built using ${project.technologies.slice(0, 5).join(", ")}.`;
+
   return {
-    title: `${project.name} — ${project.tagline}`,
-    description: project.oneLineDescription,
+    title,
+    description,
+    keywords: [
+      project.name,
+      ...project.technologies,
+      "Software Engineering Case Study",
+      "Software Developer",
+      "Cloud Computing",
+      "Backend Developer",
+    ],
     alternates: {
       canonical: `/projects/${project.slug}/`,
     },
     openGraph: {
-      title: `${project.name} — ${project.tagline} | ${siteConfig.name}`,
-      description: project.oneLineDescription,
+      title: `${title} | ${siteConfig.name}`,
+      description,
       url: `/projects/${project.slug}/`,
       type: "article",
+      images: [
+        {
+          url: "/og-image.png",
+          width: 1200,
+          height: 630,
+          alt: `${project.name} Architecture & Case Study`,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${title} | ${siteConfig.name}`,
+      description,
+      images: ["/og-image.png"],
     },
   };
 }
@@ -57,9 +83,16 @@ export default async function CaseStudyPage({ params }: CaseStudyPageProps) {
 
   const currentIndex = projects.findIndex((item) => item.slug === project.slug);
   const nextProject = projects[(currentIndex + 1) % projects.length];
+  const projectJsonLd = getProjectJsonLd(project);
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(projectJsonLd),
+        }}
+      />
       <Navbar />
       <main id="main-content" className="pb-20">
         {/* Case Study Hero */}

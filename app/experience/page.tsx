@@ -8,15 +8,23 @@ import { projects } from "@/lib/projects";
 import { siteConfig } from "@/lib/site-config";
 
 export const metadata: Metadata = {
-  title: "Experience & Credentials",
-  description: `Education, certifications, and project contributions of ${siteConfig.name}.`,
+  title: "Experience, Credentials & Engineering Scope",
+  description: `Education, cloud certifications, and technical contributions of Software Developer ${siteConfig.name} across full stack and distributed systems.`,
   alternates: {
     canonical: "/experience/",
   },
   openGraph: {
     title: `Experience & Credentials | ${siteConfig.name}`,
-    description: `Education, certifications, and project contributions of ${siteConfig.name}.`,
+    description: `Education, cloud certifications, and technical contributions of Software Developer ${siteConfig.name} across full stack and distributed systems.`,
     url: "/experience/",
+    type: "profile",
+    images: ["/og-image.png"],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `Experience & Credentials | ${siteConfig.name}`,
+    description: `Education, cloud certifications, and software engineering contributions by ${siteConfig.name}.`,
+    images: ["/og-image.png"],
   },
 };
 

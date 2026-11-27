@@ -7,15 +7,23 @@ import { Navbar } from "@/components/Navbar";
 import { siteConfig } from "@/lib/site-config";
 
 export const metadata: Metadata = {
-  title: "About",
-  description: `About ${siteConfig.name} — B.Tech CSE (Cloud Computing) student and software developer in ${siteConfig.location}.`,
+  title: "About | Software Developer & Cloud Computing",
+  description: `About ${siteConfig.name} — Software Developer and B.Tech CSE (Cloud Computing) student in ${siteConfig.location} building production cloud infrastructure and full stack systems.`,
   alternates: {
     canonical: "/about/",
   },
   openGraph: {
-    title: `About | ${siteConfig.name}`,
-    description: `About ${siteConfig.name} — B.Tech CSE (Cloud Computing) student and software developer in ${siteConfig.location}.`,
+    title: `About ${siteConfig.name} | Software Developer & Cloud Computing`,
+    description: `About ${siteConfig.name} — Software Developer and B.Tech CSE (Cloud Computing) student in ${siteConfig.location} building production cloud infrastructure and full stack systems.`,
     url: "/about/",
+    type: "profile",
+    images: ["/og-image.png"],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `About ${siteConfig.name} | Software Developer & Cloud Computing`,
+    description: `About ${siteConfig.name} — Software Developer and B.Tech CSE (Cloud Computing) student in ${siteConfig.location}.`,
+    images: ["/og-image.png"],
   },
 };
 

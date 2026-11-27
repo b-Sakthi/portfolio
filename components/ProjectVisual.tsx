@@ -23,10 +23,10 @@ export function ProjectVisual({ slug, title }: ProjectVisualProps) {
           <div className="relative aspect-[16/9] w-full overflow-hidden bg-[#0E091A]">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/images/projects/linlearn-preview.png"
+              src="/images/projects/linlearn-preview.jpg"
               alt="LinLearn dashboard showing the sidebar with XP and learning progress, Ubuntu terminal in provisioning state, Simulation Mode indicator, mission panel, and BKT cognitive mastery profile"
               width={1024}
-              height={494}
+              height={499}
               loading="lazy"
               decoding="async"
               className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-[1.02]"

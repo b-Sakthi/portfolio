@@ -143,10 +143,10 @@ export function ContactSection() {
           <div className="text-meta font-medium text-[#F5D90A]">
             <span>Get In Touch</span>
           </div>
-          <h2 className="text-section mt-4 max-w-4xl text-[#F5F5F0]">
+          <h1 className="text-section mt-4 max-w-4xl text-[#F5F5F0]">
             HAVE A PROJECT IN MIND?{" "}
             <span className="text-[#F5D90A]">LET&apos;S BUILD SOMETHING.</span>
-          </h2>
+          </h1>
         </Reveal>
 
         <div className="mt-12 grid grid-cols-1 gap-8 lg:grid-cols-12 lg:mt-16">

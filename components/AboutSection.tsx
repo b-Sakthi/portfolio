@@ -14,9 +14,9 @@ export function AboutSection() {
               <div className="text-meta font-medium text-[#F5D90A]">
                 <span>About Me</span>
               </div>
-              <h2 className="text-section mt-4 text-[#F5F5F0]">
+              <h1 className="text-section mt-4 text-[#F5F5F0]">
                 From Idea To Production Systems.
-              </h2>
+              </h1>
             </div>
 
             <div className="space-y-4 text-[#A1A1AA] lg:col-span-7">
